@@ -1,0 +1,14 @@
+
+name: Feature request
+description: Suggest an idea
+title: "[Feat]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+  - type: textarea
+    id: rationale
+    attributes:
+      label: Why / user value
