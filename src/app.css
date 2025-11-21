@@ -1,0 +1,28 @@
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+/* dark background around the phone */
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: #41454f; /* page background */
+}
+
+/* the actual phone screen */
+.phone-frame {
+  width: 390px;           /* typical mobile width (iPhone-ish) */
+  max-width: 100%;        /* so it still works on very small screens */
+  min-height: 100vh;
+  background: #050816;    /* app background */
+  color: #f8fafc;
+  box-shadow: 0 0 40px rgba(0,0,0,0.6);
+}
+
+.border-light-thin {
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-radius: 14px;
+}
