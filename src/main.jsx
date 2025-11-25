@@ -5,6 +5,7 @@ import App from './App.jsx'
 import Home from './pages/Home.jsx'
 import Profile from './pages/Profile.jsx'
 import FriendsList from './pages/Friendslist.jsx'
+import Calendar from './pages/Calendar.jsx'
 
 // Bootstrap styles & JS
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -17,7 +18,8 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <Home /> },
       { path: 'profile', element: <Profile /> },
-      { path: 'friends', element: <FriendsList /> }
+      { path: 'friends', element: <FriendsList /> },
+      { path: 'calendar', element: <Calendar /> }
     ]
   },
 ])

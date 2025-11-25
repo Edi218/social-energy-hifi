@@ -17,7 +17,7 @@ export default function Profile() {
       </div>
 
       <div className="d-grid gap-3">
-        <button className="btn btn-outline-light">
+        <button className="btn btn-outline-light" onClick={() => navigate("/calendar")}>
           <i className="bi bi-calendar3 me-2"></i> View My Calendar
         </button>
         <button className="btn btn-success">+ Create New Activity</button>
