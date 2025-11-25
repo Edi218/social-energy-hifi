@@ -9,8 +9,8 @@ export default function App() {
           <div className="container-fluid px-3">
             {/*<span className="navbar-brand">Social Energy</span>*/}
             <div className="navbar-nav ms-auto">
-              <NavLink to="/" className="nav-link">Home</NavLink>
-              <NavLink to="/profile" className="nav-link">Profile</NavLink>
+              <NavLink to="/home" className="nav-link">Home</NavLink>
+              <NavLink to="/home/profile" className="nav-link">Profile</NavLink>
             </div>
           </div>
         </nav>

@@ -37,7 +37,7 @@ export default function Profile() {
 
       <hr className="border-secondary my-4"/>
 
-      <div className="d-flex justify-content-between align-items-center mb-3" style={{ cursor: "pointer" }} onClick={() => navigate("/friends")}>
+      <div className="d-flex justify-content-between align-items-center mb-3" style={{ cursor: "pointer" }} onClick={() => navigate("/home/friends")}>
         <div className="d-flex align-items-center gap-2">
           <i className="bi bi-people-fill text-success" style={{ fontSize: "20px" }}></i>
           <h5 className="mb-0">Your Friends</h5>
