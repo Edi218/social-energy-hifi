@@ -26,3 +26,12 @@ html, body, #root {
   border: 2px solid rgba(255, 255, 255, 0.25);
   border-radius: 14px;
 }
+
+.section-title {
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.section-icon {
+  filter: drop-shadow(0 0 4px rgba(0,255,0,0.4));
+}

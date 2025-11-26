@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate, NavLink } from 'react-router-dom'
+import { useNavigate} from 'react-router-dom'
 
 export default function EnergyLevelSelection() {
   const [energyLevel, setEnergyLevel] = useState(1)
@@ -48,28 +48,22 @@ export default function EnergyLevelSelection() {
   const handleLevelClick = (level) => {
     setEnergyLevel(level)
     setHasSelectedLevel(true)
+    window.localStorage.setItem('se_energy_level', String(level))
   }
 
 
   return (
-    <div className="app-shell">
-      <div className="phone-frame d-flex flex-column">
-        <nav className="navbar navbar-expand navbar-dark bg-black border-bottom border-secondary">
-          <div className="container-fluid px-3">
-            <div className="navbar-nav ms-auto">
-              <NavLink to="/home" className="nav-link">Home</NavLink>
-              <NavLink to="/home/profile" className="nav-link">Profile</NavLink>
-            </div>
-          </div>
-        </nav>
-
+    
         <main className="flex-grow-1 px-3 py-4 d-flex flex-column justify-content-center">
           <h1 className="text-center mb-5" style={{ fontSize: '1.75rem', fontWeight: 'bold', color: '#f8fafc', lineHeight: '1.3' }}>
             Estimate your current social energy level!
           </h1>
 
           {/* Clickable Mood Indicators */}
-          <div className="d-flex justify-content-between align-items-start mb-5">
+          <div
+            className="d-flex justify-content-center align-items-start mb-5"
+            style={{ gap: '0.75rem' }}
+          >
             {[1, 2, 3, 4, 5].map((level) => {
               const color = getLevelColor(level)
               const isSelected = level === energyLevel
@@ -83,8 +77,8 @@ export default function EnergyLevelSelection() {
                     flexDirection: 'column',
                     alignItems: 'center',
                     cursor: 'pointer',
-                    flex: 1,
-                    padding: '0.5rem',
+                    flex: '0 0 auto',
+                    padding: '0.25rem',
                   }}
                 >
                   {/* Mood Face */}
@@ -179,12 +173,6 @@ export default function EnergyLevelSelection() {
             )}
           </div>
         </main>
-
-        <footer className="text-center text-secondary small py-2 border-top border-secondary">
-          HCI group 14
-        </footer>
-      </div>
-    </div>
   )
 }
 

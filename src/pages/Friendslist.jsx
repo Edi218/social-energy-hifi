@@ -6,41 +6,41 @@ export default function Friendslist() {
   const navigate = useNavigate()
 
   const friends = [
-    { name: 'Elynn Lee', status: 'Available', timestamp: '13:04' },
-    { name: 'Oscar Dum', status: 'Busy', timestamp: '12:39' },
-    { name: 'Carlo Emilion', message: 'Come join the football event tonight with me!', timestamp: '10:34' },
-    { name: 'Daniel Jay Park', status: 'Do Not Disturb', timestamp: '00:13' },
-    { name: 'Liam Cortez', status: 'Available', timestamp: 'Yesterday' },
-    { name: 'Sophia Nguyen', status: 'Busy', timestamp: 'Yesterday' },
-    { name: 'Ethan Morales', message: 'On Campus right now. Let\'s hang out!', timestamp: 'Yesterday' },
-    { name: 'Ava Becker', status: 'Available', timestamp: 'Yesterday' },
-    { name: 'Noah Tanaka', status: 'Busy', timestamp: '2 days ago' },
-    { name: 'Chloe Ricci', status: 'Available', timestamp: '2 days ago' },
-    { name: 'Mateo Alvarez', status: 'Available', timestamp: '3 days ago' },
-    { name: 'Lucas Hwang', status: 'Available', timestamp: '1 week ago' },
-    { name: 'Isabella Fontaine', status: 'Available', timestamp: '1 week ago' },
-  ]
+  { name: 'Elynn Lee', status: 'Available', timestamp: '13:04', profileImage: '/images/female.png' },
+  { name: 'Oscar Dum', status: 'Busy', timestamp: '12:39', profileImage: '/images/profile.png' },
+  { name: 'Carlo Emilion', message: 'Come join the football event tonight with me!', timestamp: '10:34', profileImage: '/images/profile.png' },
+  { name: 'Daniel Jay Park', status: 'Do Not Disturb', timestamp: '00:13', profileImage: '/images/profile.png' },
+  { name: 'Liam Cortez', status: 'Available', timestamp: 'Yesterday', profileImage: '/images/profile.png' },
+  { name: 'Sophia Nguyen', status: 'Busy', timestamp: 'Yesterday', profileImage: '/images/female.png' },
+  { name: 'Ethan Morales', message: 'On Campus right now. Let\'s hang out!', timestamp: 'Yesterday', profileImage: '/images/profile.png' },
+  { name: 'Ava Becker', status: 'Available', timestamp: 'Yesterday', profileImage: '/images/female.png' },
+  { name: 'Noah Tanaka', status: 'Busy', timestamp: '2 days ago', profileImage: '/images/profile.png' },
+  { name: 'Chloe Ricci', status: 'Available', timestamp: '2 days ago', profileImage: '/images/female.png' },
+  { name: 'Mateo Alvarez', status: 'Available', timestamp: '3 days ago', profileImage: '/images/profile.png' },
+  { name: 'Lucas Hwang', status: 'Available', timestamp: '1 week ago', profileImage: '/images/profile.png' },
+  { name: 'Isabella Fontaine', status: 'Available', timestamp: '1 week ago', profileImage: '/images/female.png' },
+]
 
   return (
     <div>
       {/* Header */}
       <div className="d-flex align-items-center justify-content-between mb-4">
-        <button 
+        {/*<button 
           onClick={() => navigate('/home/profile')}
           className="btn btn-link text-light p-0"
           style={{ textDecoration: 'none' }}
         >
           <i className="bi bi-arrow-left" style={{ fontSize: '1.5rem' }}></i>
-        </button>
+        </button>*/}
         <h2 className="mb-0 text-center flex-grow-1" style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>
           Your Friendlist
         </h2>
-        <img 
+        {/*<img 
           src="/images/profile.png" 
           alt="Profile" 
           className="rounded-circle" 
           style={{ width: 32, height: 32, objectFit: "cover" }}
-        />
+        />*/}
       </div>
 
       {/* Friends List */}

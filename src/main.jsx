@@ -14,16 +14,22 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import './app.css'
 
 const router = createBrowserRouter([
-  { path: '/', element: <EnergyLevelSelection /> },
-  { 
-    path: '/home', 
-    element: <App />,
+  {
+    path: '/',
+    element: <App />,               // 👈 App is now the layout for ALL routes
     children: [
-      { index: true, element: <Home /> },
-      { path: 'profile', element: <Profile /> },
-      { path: 'friends', element: <FriendsList /> },
-      { path: 'calendar', element: <Calendar /> }
-    ]
+      { index: true, element: <EnergyLevelSelection /> }, // '/' shows energy page
+
+      {
+        path: 'home',
+        children: [
+          { index: true, element: <Home /> },              // '/home'
+          { path: 'profile', element: <Profile /> },       // '/home/profile'
+          { path: 'friends', element: <FriendsList /> },   // '/home/friends'
+          { path: 'calendar', element: <Calendar /> },     // '/home/calendar'
+        ],
+      },
+    ],
   },
 ])
 

@@ -15,7 +15,7 @@ export default function Calendar() {
     <div>
       {/* Header */}
       <div className="d-flex align-items-center gap-3 mb-4">
-        <i 
+        {/*<i 
           className="bi bi-arrow-left text-light" 
           style={{ 
             fontSize: "24px", 
@@ -25,7 +25,7 @@ export default function Calendar() {
           onClick={() => navigate(-1)}
           onMouseEnter={(e) => e.target.style.opacity = "0.7"}
           onMouseLeave={(e) => e.target.style.opacity = "1"}
-        ></i>
+        ></i>*/}
         <div>
           <h2 className="mb-0" style={{ fontWeight: "600" }}>Week Calendar</h2>
           <p className="text-secondary small mb-0" style={{ fontSize: "0.875rem" }}>Your schedule overview</p>
