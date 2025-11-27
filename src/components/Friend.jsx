@@ -1,12 +1,27 @@
 import React from 'react'
 
-export default function Friend({ name, status, message, profileImage, timestamp }) {
+export default function Friend({ name, status, message, profileImage, timestamp, onClick }) {
   return (
     <div 
       className="d-flex align-items-center gap-3 p-3 mb-3 rounded-3 position-relative"
       style={{ 
         background: "#010c28ff",
         border: "2px solid rgba(255, 255, 255, 0.25)",
+        cursor: onClick ? 'pointer' : 'default',
+        transition: 'all 0.2s ease',
+      }}
+      onClick={onClick}
+      onMouseEnter={(e) => {
+        if (onClick) {
+          e.currentTarget.style.background = 'rgba(1, 12, 40, 0.8)'
+          e.currentTarget.style.border = '2px solid rgba(255, 255, 255, 0.4)'
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (onClick) {
+          e.currentTarget.style.background = '#010c28ff'
+          e.currentTarget.style.border = '2px solid rgba(255, 255, 255, 0.25)'
+        }
       }}
     >
       <img 
