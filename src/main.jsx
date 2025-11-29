@@ -7,8 +7,8 @@ import Home from './pages/Home.jsx'
 import Profile from './pages/Profile.jsx'
 import FriendsList from './pages/Friendslist.jsx'
 import Calendar from './pages/Calendar.jsx'
+import Notifications from './pages/Notifications.jsx'
 
-// Bootstrap styles
 import 'bootstrap/dist/css/bootstrap.min.css'
 import "bootstrap-icons/font/bootstrap-icons.css";
 import './app.css'
@@ -16,17 +16,18 @@ import './app.css'
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <App />,               // 👈 App is now the layout for ALL routes
+    element: <App />,
     children: [
-      { index: true, element: <EnergyLevelSelection /> }, // '/' shows energy page
+      { index: true, element: <EnergyLevelSelection /> },
 
       {
         path: 'home',
         children: [
-          { index: true, element: <Home /> },              // '/home'
-          { path: 'profile', element: <Profile /> },       // '/home/profile'
-          { path: 'friends', element: <FriendsList /> },   // '/home/friends'
-          { path: 'calendar', element: <Calendar /> },     // '/home/calendar'
+          { index: true, element: <Home /> },
+          { path: 'profile', element: <Profile /> },
+          { path: 'friends', element: <FriendsList /> },
+          { path: 'calendar', element: <Calendar /> },
+          { path: 'notifications', element: <Notifications /> },
         ],
       },
     ],
