@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import EventCard from "../components/EventCard.jsx";
 import QuoteCard from "../components/QuoteCard.jsx";
 
@@ -74,6 +75,72 @@ export default function Home() {
       : savedLevel === 4
       ? "mediumhigh"
       : "high";
+
+  const navigate = useNavigate();
+
+  // Small “nudge” popup state
+  const [showNudge, setShowNudge] = useState(false);
+
+  // Show popup after 100 seconds on the home page
+  useEffect(() => {
+    const alreadyShown = sessionStorage.getItem("nudge_shown");
+
+    if (alreadyShown) return;
+
+    const timer = setTimeout(() => {
+      setShowNudge(true);
+      sessionStorage.setItem("nudge_shown", "true");
+    }, 10_000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const nudgeByBucket = {
+    verylow: {
+      title: "Tiny Steps Are Enough",
+      text:
+        "You’ve been at it for a while. How about a short, low-key break or a quiet check-in with someone you trust?",
+      primaryLabel: "Browse gentle events",
+      secondaryLabel: "Maybe later",
+    },
+    low: {
+      title: "A Small Social Boost",
+      text:
+        "A quick coffee chat or short walk could gently lift your mood without overwhelming you.",
+      primaryLabel: "See low-key ideas",
+      secondaryLabel: "Keep focusing",
+    },
+    medium: {
+      title: "Ready for a Little Break?",
+      text:
+        "You’ve been focused for a while. A short social break can help you come back with more energy.",
+      primaryLabel: "Check events",
+      secondaryLabel: "Stay here",
+    },
+    mediumhigh: {
+      title: "Channel Your Momentum",
+      text:
+        "You seem energized! This might be a great moment to join a group activity or plan something with friends.",
+      primaryLabel: "See group activities",
+      secondaryLabel: "Not now",
+    },
+    high: {
+      title: "Put Your Energy to Use",
+      text:
+        "You’re fully charged! Perfect moment to join an event, invite friends, or start something fun.",
+      primaryLabel: "Open events",
+      secondaryLabel: "Maybe later",
+    },
+    unknown: {
+      title: "How Are You Feeling?",
+      text:
+        "Tell me how you’re feeling so we can suggest the right type of break or activity for you.",
+      primaryLabel: "Set my energy level",
+      secondaryLabel: "Skip for now",
+    },
+  };
+
+  const nudgeConfig = nudgeByBucket[energyBucket] || nudgeByBucket.unknown;
 
   const quote = quoteByBucket[energyBucket] || quoteByBucket.unknown;
 
@@ -459,6 +526,82 @@ export default function Home() {
               Show less ▲
             </button>
           )}
+        </div>
+      )}
+       {showNudge && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+          style={{
+            background: "rgba(0,0,0,0.7)",
+            zIndex: 2000,
+          }}
+          onClick={() => setShowNudge(false)} // clicking backdrop closes
+        >
+          <div
+            className="card"
+            style={{
+              width: "90%",
+              maxWidth: "420px",
+              backgroundColor: "#020617",
+              borderRadius: "18px",
+              border: `1px solid ${currentBorderColor}`,
+              boxShadow: "0 18px 40px rgba(0,0,0,0.6)",
+            }}
+            onClick={(e) => e.stopPropagation()} // prevent backdrop close
+          >
+            <div className="card-body d-flex">
+              {/* Icon circle */}
+              <div
+                className="me-3 d-flex align-items-start justify-content-center"
+              >
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center"
+                  style={{
+                    width: 48,
+                    height: 48,
+                    backgroundColor: "#0f172a",
+                    border: `1px solid ${currentBorderColor}`,
+                    fontSize: "1.5rem",
+                  }}
+                >
+                  ⚡
+                </div>
+              </div>
+
+              {/* Text + actions */}
+              <div style={{ flex: 1 }}>
+                <h5 className="text-white fw-semibold mb-2">
+                  {nudgeConfig.title}
+                </h5>
+                <p className="text-secondary mb-3" style={{ fontSize: "0.9rem" }}>
+                  {nudgeConfig.text}
+                </p>
+
+                <div className="d-flex gap-2 justify-content-end">
+                  <button
+                    className="btn btn-sm btn-outline-secondary"
+                    onClick={() => setShowNudge(false)}
+                  >
+                    {nudgeConfig.secondaryLabel}
+                  </button>
+
+                  <button
+                    className="btn btn-sm btn-success"
+                    onClick={() => {
+                      setShowNudge(false);
+                      if (energyBucket === "unknown") {
+                        navigate("/"); // go back to energy selection
+                      } else {
+                        navigate("/home"); // or "/home" or "/home/calendar"
+                      }
+                    }}
+                  >
+                    {nudgeConfig.primaryLabel}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
