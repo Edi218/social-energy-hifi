@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import ActivityCard from '../components/ActivityCard.jsx'
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
+import { getEnrolledEvents, removeEnrolledEvent } from "../utils/eventManager.js"; 
 
 export default function Profile() {
   const friends = [
@@ -44,6 +45,18 @@ export default function Profile() {
     const saved = window.localStorage.getItem('se_energy_level')
     return saved ? parseInt(saved, 10) : null
   })
+
+  const [enrolledEvents, setEnrolledEvents] = useState([])
+
+  useEffect(() => {
+    const loadEvents = () => {
+      setEnrolledEvents(getEnrolledEvents());
+    };
+    loadEvents();
+    // Listen for events updates
+    window.addEventListener('eventsUpdated', loadEvents);
+    return () => window.removeEventListener('eventsUpdated', loadEvents);
+  }, []);
 
   const getMoodEmoji = (level) => {
     const moods = {
@@ -247,10 +260,59 @@ export default function Profile() {
           </div>
         </div>
 
-        <ActivityCard
-          title="No events yet"
-          subtitle="-"
-        />
+        {enrolledEvents.length === 0 ? (
+          <ActivityCard
+            title="No events yet"
+            subtitle="Join events from the home page to see them here"
+          />
+        ) : (
+          enrolledEvents.map((event, idx) => (
+            <ActivityCard
+              key={idx}
+              title={event.title}
+              subtitle={`${event.timeLabel} • ${event.location}`}
+            >
+              {event.attendees && event.attendees.length > 0 && (
+                <div className="d-flex align-items-center mt-2 mb-3">
+                  <i className="bi bi-people-fill me-2 text-secondary"></i>
+                  <span className="text-light opacity-75" style={{ fontSize: "0.85rem" }}>
+                    {event.attendees.join(', ')}
+                  </span>
+                </div>
+              )}
+              {/* Leave Button - Bottom Right inside card */}
+              <div className="d-flex justify-content-end mt-3">
+                <button
+                  className="btn"
+                  style={{
+                    backgroundColor: '#dc3545',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '0.5rem 1.25rem',
+                    borderRadius: '8px',
+                    fontWeight: 600,
+                    fontSize: '0.9rem',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onClick={() => {
+                    removeEnrolledEvent(event.title, event.timeLabel);
+                    window.dispatchEvent(new Event('eventsUpdated'));
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#c82333';
+                    e.target.style.transform = 'scale(1.05)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = '#dc3545';
+                    e.target.style.transform = 'scale(1)';
+                  }}
+                >
+                  Leave
+                </button>
+              </div>
+            </ActivityCard>
+          ))
+        )}
 
         <hr className="border-secondary my-4" />
 

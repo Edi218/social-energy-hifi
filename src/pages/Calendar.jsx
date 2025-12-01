@@ -1,8 +1,20 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from "react-router-dom";
+import { getEnrolledEvents, parseEventTime } from "../utils/eventManager.js";
 
 export default function Calendar() {
   const navigate = useNavigate();
+  const [enrolledEvents, setEnrolledEvents] = useState([]);
+
+  useEffect(() => {
+    const loadEvents = () => {
+      setEnrolledEvents(getEnrolledEvents());
+    };
+    loadEvents();
+    // Listen for events updates
+    window.addEventListener('eventsUpdated', loadEvents);
+    return () => window.removeEventListener('eventsUpdated', loadEvents);
+  }, []);
   
   const timeSlots = [
     '8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', 
@@ -126,25 +138,69 @@ export default function Calendar() {
                 </div>
                 
                 {/* Day cells for this time slot */}
-                {days.map((day, dayIndex) => (
-                  <div 
-                    key={`${time}-${day}`}
-                    style={{ 
-                      minHeight: "45px",
-                      backgroundColor: "transparent",
-                      borderRight: dayIndex === days.length - 1 ? "none" : "1px solid rgba(100, 120, 150, 0.2)",
-                      borderBottom: timeIndex === timeSlots.length - 1 ? "none" : "1px solid rgba(100, 120, 150, 0.2)",
-                      transition: "background-color 0.2s ease",
-                      cursor: "pointer"
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = "rgba(30, 50, 80, 0.4)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = "transparent";
-                    }}
-                  ></div>
-                ))}
+                {days.map((day, dayIndex) => {
+                  // Find events for this time slot and day
+                  const cellEvents = enrolledEvents.filter((event) => {
+                    const { day: eventDay, hour24 } = parseEventTime(event.timeLabel);
+                    if (eventDay !== day || hour24 === null) return false;
+                    
+                    // Convert time slot to 24-hour format
+                    const timeSlot24 = (() => {
+                      const parts = time.split(' ');
+                      let hour = parseInt(parts[0]);
+                      const ampm = parts[1];
+                      if (ampm === 'PM' && hour !== 12) hour += 12;
+                      if (ampm === 'AM' && hour === 12) hour = 0;
+                      return hour;
+                    })();
+                    
+                    // Match if the event hour matches the time slot hour
+                    return hour24 === timeSlot24;
+                  });
+
+                  return (
+                    <div 
+                      key={`${time}-${day}`}
+                      style={{ 
+                        minHeight: "45px",
+                        backgroundColor: "transparent",
+                        borderRight: dayIndex === days.length - 1 ? "none" : "1px solid rgba(100, 120, 150, 0.2)",
+                        borderBottom: timeIndex === timeSlots.length - 1 ? "none" : "1px solid rgba(100, 120, 150, 0.2)",
+                        transition: "background-color 0.2s ease",
+                        cursor: "pointer",
+                        position: "relative",
+                        padding: cellEvents.length > 0 ? "2px" : "0"
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "rgba(30, 50, 80, 0.4)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "transparent";
+                      }}
+                    >
+                      {cellEvents.map((event, eventIdx) => (
+                        <div
+                          key={eventIdx}
+                          style={{
+                            backgroundColor: "#28a745",
+                            color: "#ffffff",
+                            padding: "2px 6px",
+                            borderRadius: "4px",
+                            fontSize: "0.7rem",
+                            marginBottom: "2px",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                            fontWeight: "500"
+                          }}
+                          title={event.title}
+                        >
+                          {event.title.length > 8 ? event.title.substring(0, 8) + "..." : event.title}
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })}
               </React.Fragment>
             ))}
           </div>
