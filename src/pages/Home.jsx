@@ -3,6 +3,31 @@ import EventCard from "../components/EventCard.jsx";
 import QuoteCard from "../components/QuoteCard.jsx";
 
 export default function Home() {
+  // State for event details modal
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  
+  // State for advise modal
+  const [isAdviseModalOpen, setIsAdviseModalOpen] = useState(false);
+  const [selectedFriends, setSelectedFriends] = useState([]);
+  
+  // Friends list (same as in Friendslist.jsx)
+  const friendsList = [
+    'Elynn Lee',
+    'Oscar Dum',
+    'Carlo Emilion',
+    'Daniel Jay Park',
+    'Liam Cortez',
+    'Sophia Nguyen',
+    'Ethan Morales',
+    'Ava Becker',
+    'Noah Tanaka',
+    'Chloe Ricci',
+    'Mateo Alvarez',
+    'Lucas Hwang',
+    'Isabella Fontaine',
+  ];
+
   // Read saved energy level
   const savedLevel = (() => {
     const raw = window.localStorage.getItem("se_energy_level");
@@ -168,6 +193,7 @@ export default function Home() {
       location: "ETH Main Library",
       attendees: ["Ava"],
       image: "/images/events/quiet-study.jpg",
+      description: "A peaceful study session in the quiet section of the main library. Perfect for when you need to focus without distractions. We'll work on our own projects but share the calm, productive energy.",
     },
     {
       title: "Short Walk & Talk",
@@ -175,6 +201,7 @@ export default function Home() {
       location: "Polyterrasse",
       attendees: ["Sophia"],
       image: "/images/events/polyterasse.jpg",
+      description: "A gentle stroll around Polyterrasse to get some fresh air and light conversation. No pressure, just a relaxed way to connect and recharge. We'll keep it short and sweet.",
     },
     {
       title: "Chill Tea Break",
@@ -182,6 +209,7 @@ export default function Home() {
       location: "ETH Alumni Lounge",
       attendees: ["Lucas", "Carlo"],
       image: "/images/events/tea.jpg",
+      description: "A cozy tea break in the alumni lounge to unwind and chat casually. Bring your favorite mug and enjoy some quiet conversation. It's all about low-key vibes and good company.",
     },
   ];
 
@@ -190,9 +218,10 @@ export default function Home() {
     {
       title: "Cozy Board Game Night",
       timeLabel: "Friday at 8:00 PM",
-      location: "Friend’s Flat, Kreis 6",
+      location: "Friend's Flat, Kreis 6",
       attendees: ["Lucas", "Isabella"],
       image: "/images/events/boardgames.jpg",
+      description: "A relaxed evening of board games in a cozy apartment setting. We'll play some chill games like Catan or Codenames while enjoying snacks and good conversation. Perfect for a low-energy social night.",
     },
     {
       title: "Calm Study Meetup",
@@ -200,6 +229,7 @@ export default function Home() {
       location: "CAB Silent Room",
       attendees: ["Chloe"],
       image: "/images/events/study.png",
+      description: "A peaceful study session in the silent room where we can work together quietly. We'll keep each other company while respecting the quiet atmosphere. Great for staying motivated without the pressure of conversation.",
     },
     {
       title: "Evening Stroll",
@@ -207,6 +237,7 @@ export default function Home() {
       location: "Zürich Central",
       attendees: ["Ethan", "Ava"],
       image: "/images/events/walk-night.jpg",
+      description: "A gentle evening walk through Zürich Central to enjoy the city lights and fresh air. We'll take it slow and chat about our week. It's a perfect way to unwind and connect without any big commitments.",
     },
     {
       title: "Quiet Library Study",
@@ -214,6 +245,7 @@ export default function Home() {
       location: "ETH Main Library",
       attendees: ["Ava"],
       image: "/images/events/quiet-study.jpg",
+      description: "A focused study session in the main library's quiet section. We'll work on our assignments together but independently, sharing the productive atmosphere. Ideal for when you need to get work done in a calm environment.",
     },
   ];
 
@@ -225,6 +257,7 @@ export default function Home() {
       location: "Einstein Cafe, ETH HG",
       attendees: ["Chloe", "Lucas"],
       image: "/images/events/coffee.jpg",
+      description: "A casual coffee meetup at Einstein Cafe to catch up and chat about classes, life, and everything in between. We'll grab our favorite drinks and find a cozy spot to relax. Perfect for a mid-morning social break.",
     },
     {
       title: "Lunch with Friends",
@@ -232,6 +265,7 @@ export default function Home() {
       location: "ETH Mensa Polyterrasse",
       attendees: ["Mateo", "Isabella"],
       image: "/images/events/mensa.jpg",
+      description: "A relaxed lunch at the Polyterrasse Mensa where we'll enjoy good food and great conversation. We'll discuss our week, share study tips, and just enjoy each other's company. It's a nice way to break up the day.",
     },
     {
       title: "Study Together",
@@ -239,6 +273,7 @@ export default function Home() {
       location: "ETH CAB Building",
       attendees: ["Ava", "Isabella", "Mateo", "Chloe"],
       image: "/images/events/study.png",
+      description: "A collaborative study session where we'll work on our assignments together and help each other out when needed. We'll take breaks to chat and keep the energy positive. Great for staying motivated and getting things done.",
     },
     {
       title: "Lunch Crew",
@@ -246,6 +281,7 @@ export default function Home() {
       location: "ETH Mensa Polyterrasse",
       attendees: ["Mateo", "Chloe", "Isabella"],
       image: "/images/events/mensa2.jpg",
+      description: "Our regular Thursday lunch meetup at the Mensa! We'll grab food together and catch up on the week. It's become a nice tradition that helps us stay connected and share what's going on in our lives.",
     },
   ];
 
@@ -257,6 +293,7 @@ export default function Home() {
       location: "ETH HG E33",
       attendees: ["Ava", "Isabella", "Mateo", "Chloe"],
       image: "/images/events/study.jpg",
+      description: "An energetic study sprint where we'll tackle our assignments together and push each other to stay focused. We'll work in focused blocks with short breaks to chat and recharge. Perfect for when you're feeling motivated and want to get a lot done.",
     },
     {
       title: "Evening Jog Crew",
@@ -264,6 +301,7 @@ export default function Home() {
       location: "ETH Hönggerberg",
       attendees: ["Liam", "Ethan", "Daniel"],
       image: "/images/events/run.jpg",
+      description: "A fun evening jog around Hönggerberg campus to get some exercise and fresh air. We'll run at a comfortable pace and chat along the way. It's a great way to stay active and socialize at the same time.",
     },
     {
       title: "Casual Dinner Out",
@@ -271,6 +309,7 @@ export default function Home() {
       location: "Nooch Zurich",
       attendees: ["Oscar", "Daniel"],
       image: "/images/events/dinner.jpg",
+      description: "A relaxed dinner at Nooch Zurich to enjoy some delicious Asian cuisine and good conversation. We'll try different dishes, share stories, and just have a great time together. Perfect for a Saturday night out.",
     },
     {
       title: "Big Study Group",
@@ -278,6 +317,7 @@ export default function Home() {
       location: "HG D1.2",
       attendees: ["Ava", "Isabella", "Mateo", "Chloe"],
       image: "/images/events/study.png",
+      description: "A productive study session with the whole group where we'll work on assignments and help each other with difficult problems. We'll take regular breaks to chat and keep the atmosphere positive and motivating. Great for tackling challenging material together.",
     },
     {
       title: "Lunch Crew",
@@ -285,6 +325,7 @@ export default function Home() {
       location: "Mensa Polyterrasse",
       attendees: ["Chloe", "Mateo"],
       image: "/images/events/mensa2.jpg",
+      description: "A lively lunch meetup at the Mensa where we'll enjoy good food and catch up on everything. We'll share what we're working on, discuss upcoming projects, and just enjoy each other's company. Always a highlight of the week!",
     },
   ];
 
@@ -296,6 +337,7 @@ export default function Home() {
       location: "BQM Bar",
       attendees: ["Lucas", "Ethan", "Sophia", "Daniel"],
       image: "/images/events/drinks.jpg",
+      description: "A fun Friday night out at BQM Bar to celebrate the end of the week! We'll grab drinks, play some games, and enjoy the lively atmosphere. It's the perfect way to unwind and have a great time with friends. Let's make it a memorable night!",
     },
     {
       title: "ASVZ Group Workout",
@@ -303,6 +345,7 @@ export default function Home() {
       location: "ASVZ Polyterrasse",
       attendees: ["Carlo", "Oscar", "Ethan"],
       image: "/images/events/workout.jpg",
+      description: "An energetic group workout session at ASVZ Polyterrasse! We'll push each other through a fun circuit training or weight session. It's all about staying active, having fun, and motivating each other. Perfect for when you're feeling pumped and ready to move!",
     },
     {
       title: "Volleyball Free Play",
@@ -310,6 +353,7 @@ export default function Home() {
       location: "ASVZ Höngg",
       attendees: ["Liam", "Ethan", "Lucas"],
       image: "/images/events/volleyball.png",
+      description: "A competitive and fun volleyball session at ASVZ Höngg! We'll play some friendly matches, work on our skills, and enjoy the active energy. Whether you're experienced or just want to try it out, everyone's welcome. Let's get moving and have a blast!",
     },
     {
       title: "Big Study Group",
@@ -317,6 +361,7 @@ export default function Home() {
       location: "ETH HG D1.2",
       attendees: ["Ava", "Isabella", "Mateo", "Chloe"],
       image: "/images/events/study.png",
+      description: "An energetic and collaborative study session with the whole crew! We'll tackle challenging problems together, share knowledge, and keep the momentum high. With regular breaks for laughs and snacks, it's both productive and fun. Perfect for when you're feeling motivated and ready to conquer your work!",
     },
   ];
 
@@ -337,6 +382,81 @@ export default function Home() {
   // Show more/less
   const [showAll, setShowAll] = useState(false);
   const visibleEvents = showAll ? eventsForUser : eventsForUser.slice(0, 3);
+
+  // Handlers for event modal
+  const handleJoinEvent = (event) => {
+    setSelectedEvent(event);
+    setIsEventModalOpen(true);
+  };
+
+  const handleCloseEventModal = () => {
+    setIsEventModalOpen(false);
+    setSelectedEvent(null);
+  };
+
+  const handleSignUp = () => {
+    // TODO: Implement sign up functionality
+    console.log("Signing up for event:", selectedEvent?.title);
+    handleCloseEventModal();
+  };
+
+  const handleAdvise = () => {
+    setIsAdviseModalOpen(true);
+    setSelectedFriends([]);
+  };
+
+  const handleCloseAdviseModal = () => {
+    setIsAdviseModalOpen(false);
+    setSelectedFriends([]);
+  };
+
+  const toggleFriendSelection = (friendName) => {
+    setSelectedFriends(prev => {
+      if (prev.includes(friendName)) {
+        return prev.filter(name => name !== friendName);
+      } else {
+        return [...prev, friendName];
+      }
+    });
+  };
+
+  const handleSendAdvise = () => {
+    if (!selectedEvent || selectedFriends.length === 0) return;
+
+    // Get existing conversations from localStorage (preserve all existing chats)
+    const saved = localStorage.getItem('se_conversations');
+    const conversations = saved ? JSON.parse(saved) : {};
+    
+    const now = new Date();
+    const timestamp = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+    
+    // Create the advise message (short and simple)
+    const adviseMessage = `Hey! I think you'd enjoy this event: "${selectedEvent.title}" at ${selectedEvent.location} on ${selectedEvent.timeLabel}.`;
+    
+    // Add message to each selected friend's conversation
+    selectedFriends.forEach(friendName => {
+      const friendConversations = conversations[friendName] || [];
+      const newMessage = {
+        id: friendConversations.length + 1,
+        text: adviseMessage,
+        sender: 'me',
+        timestamp: timestamp,
+        date: now.toISOString(),
+      };
+      
+      conversations[friendName] = [...friendConversations, newMessage];
+    });
+    
+    // Save updated conversations to localStorage
+    localStorage.setItem('se_conversations', JSON.stringify(conversations));
+    
+    // Close modals
+    handleCloseAdviseModal();
+    handleCloseEventModal();
+    
+    // Trigger a custom event to notify Friendslist to refresh
+    window.dispatchEvent(new Event('conversationsUpdated'));
+  };
 
   return (
     <div>
@@ -437,7 +557,8 @@ export default function Home() {
             location={ev.location}
             attendees={ev.attendees}
             image={ev.image}
-            borderColor={currentBorderColor}   
+            borderColor={currentBorderColor}
+            onJoin={() => handleJoinEvent(ev)}
           />
         ))}
       </div>
@@ -459,6 +580,292 @@ export default function Home() {
               Show less ▲
             </button>
           )}
+        </div>
+      )}
+
+      {/* Event Details Modal */}
+      {isEventModalOpen && selectedEvent && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+          style={{
+            background: "rgba(0, 0, 0, 0.7)",
+            zIndex: 1050,
+            padding: "1rem",
+          }}
+          onClick={handleCloseEventModal}
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: "350px",
+              maxHeight: "90vh",
+              overflowY: "auto",
+              backgroundColor: "#020617",
+              borderRadius: "18px",
+              border: `1px solid ${currentBorderColor}`,
+              boxShadow: "0 8px 20px rgba(0,0,0,0.45)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div
+              className="d-flex align-items-center justify-content-between p-3"
+              style={{ borderBottom: "1px solid rgba(148,163,184,0.2)" }}
+            >
+              <button
+                onClick={handleCloseEventModal}
+                className="btn btn-link p-0"
+                style={{ textDecoration: "none", color: "#ffffff" }}
+              >
+                <i className="bi bi-arrow-left" style={{ fontSize: "1.5rem" }}></i>
+              </button>
+              <h5 className="mb-0 fw-semibold text-white">{selectedEvent.title}</h5>
+              <div style={{ width: "1.5rem" }}></div>
+            </div>
+
+            {/* Event Image */}
+            <div
+              style={{
+                width: "100%",
+                height: "200px",
+                overflow: "hidden",
+                backgroundColor: "#0f172a",
+              }}
+            >
+              {selectedEvent.image ? (
+                <img
+                  src={selectedEvent.image}
+                  alt={selectedEvent.title}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+              ) : (
+                <div
+                  className="d-flex align-items-center justify-content-center"
+                  style={{ height: "100%", color: "#9ca3af", opacity: 0.3 }}
+                >
+                  <i className="bi bi-image" style={{ fontSize: "3rem" }} />
+                </div>
+              )}
+            </div>
+
+            {/* Content */}
+            <div className="p-4">
+              {/* Description */}
+              <p className="text-light mb-4" style={{ fontSize: "1rem", lineHeight: "1.6", opacity: 0.9 }}>
+                {selectedEvent.description}
+              </p>
+
+              {/* Social Proof */}
+              {selectedEvent.attendees && selectedEvent.attendees.length > 0 && (
+                <div className="d-flex align-items-center mb-4">
+                  <span className="text-light me-2" style={{ fontSize: "0.9rem", opacity: 0.8 }}>
+                    Advised by {selectedEvent.attendees[0]}
+                    {selectedEvent.attendees.length > 1 && ` and ${selectedEvent.attendees.length - 1} other${selectedEvent.attendees.length > 2 ? 's' : ''}`}
+                  </span>
+                  <div className="d-flex align-items-center ms-2">
+                    {selectedEvent.attendees.slice(0, 3).map((attendee, idx) => (
+                      <div
+                        key={attendee + idx}
+                        className="rounded-circle d-flex align-items-center justify-content-center text-white fw-semibold"
+                        style={{
+                          width: 28,
+                          height: 28,
+                          backgroundColor: currentBorderColor.replace(/rgba?\(([^,]+),([^,]+),([^,]+).*\)/, (m, r, g, b) => `rgba(${r},${g},${b},1)`),
+                          marginLeft: idx === 0 ? 0 : -8,
+                          border: "2px solid #020617",
+                          fontSize: "0.75rem",
+                        }}
+                      >
+                        {attendee[0]}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="d-flex gap-3 mt-4">
+                <button
+                  className="btn w-50"
+                  style={{
+                    backgroundColor: "#0f172a",
+                    color: "#f9fafb",
+                    borderRadius: "12px",
+                    padding: "0.75rem",
+                    fontWeight: 600,
+                    border: "1px solid rgba(148,163,184,0.3)",
+                  }}
+                  onClick={handleSignUp}
+                >
+                  Sign up
+                </button>
+                <button
+                  className="btn w-50"
+                  style={{
+                    backgroundColor: "#0f172a",
+                    color: "#f9fafb",
+                    borderRadius: "12px",
+                    padding: "0.75rem",
+                    fontWeight: 600,
+                    border: "1px solid rgba(148,163,184,0.3)",
+                  }}
+                  onClick={handleAdvise}
+                >
+                  Advise
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Advise Modal */}
+      {isAdviseModalOpen && selectedEvent && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+          style={{
+            background: "rgba(0, 0, 0, 0.7)",
+            zIndex: 1060,
+            padding: "1rem",
+          }}
+          onClick={handleCloseAdviseModal}
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: "350px",
+              maxHeight: "85vh",
+              display: "flex",
+              flexDirection: "column",
+              backgroundColor: "#020617",
+              borderRadius: "18px",
+              border: `1px solid ${currentBorderColor}`,
+              boxShadow: "0 8px 20px rgba(0,0,0,0.45)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div
+              className="d-flex align-items-center justify-content-between p-3"
+              style={{ 
+                borderBottom: "1px solid rgba(148,163,184,0.2)",
+                flexShrink: 0,
+              }}
+            >
+              <button
+                onClick={handleCloseAdviseModal}
+                className="btn btn-link p-0"
+                style={{ textDecoration: "none", color: "#ffffff" }}
+              >
+                <i className="bi bi-arrow-left" style={{ fontSize: "1.5rem" }}></i>
+              </button>
+              <h5 className="mb-0 fw-semibold text-white">Send Advise</h5>
+              <div style={{ width: "1.5rem" }}></div>
+            </div>
+
+            {/* Content - Scrollable area */}
+            <div 
+              style={{
+                flex: 1,
+                overflowY: "auto",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <div className="p-4" style={{ flexShrink: 0 }}>
+                <p className="text-light mb-3" style={{ fontSize: "0.95rem", opacity: 0.9 }}>
+                  Select friends to send advice about <strong>{selectedEvent.title}</strong>
+                </p>
+              </div>
+
+              {/* Friends List - Scrollable */}
+              <div 
+                style={{ 
+                  flex: 1,
+                  overflowY: "auto",
+                  padding: "0 1rem",
+                  paddingBottom: "1rem",
+                }}
+              >
+                {friendsList.map((friendName) => {
+                  const isSelected = selectedFriends.includes(friendName);
+                  return (
+                    <div
+                      key={friendName}
+                      className="d-flex align-items-center p-2 mb-2 rounded"
+                      style={{
+                        backgroundColor: isSelected ? "rgba(148,163,184,0.1)" : "transparent",
+                        border: isSelected ? `1px solid ${currentBorderColor}` : "1px solid rgba(148,163,184,0.2)",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => toggleFriendSelection(friendName)}
+                    >
+                      <div
+                        className="rounded-circle d-flex align-items-center justify-content-center me-3"
+                        style={{
+                          width: "36px",
+                          height: "36px",
+                          backgroundColor: currentBorderColor.replace(/rgba?\(([^,]+),([^,]+),([^,]+).*\)/, (m, r, g, b) => `rgba(${r},${g},${b},1)`),
+                          color: "#020617",
+                          fontWeight: 600,
+                          fontSize: "0.9rem",
+                        }}
+                      >
+                        {friendName[0]}
+                      </div>
+                      <div className="flex-grow-1">
+                        <div className="text-white fw-semibold" style={{ fontSize: "0.95rem" }}>{friendName}</div>
+                      </div>
+                      <div
+                        className="rounded-circle d-flex align-items-center justify-content-center"
+                        style={{
+                          width: "22px",
+                          height: "22px",
+                          border: `2px solid ${isSelected ? currentBorderColor : "rgba(148,163,184,0.5)"}`,
+                          backgroundColor: isSelected ? currentBorderColor : "transparent",
+                        }}
+                      >
+                        {isSelected && (
+                          <i className="bi bi-check text-white" style={{ fontSize: "0.7rem" }}></i>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Send Advise Button - Fixed at bottom */}
+            <div 
+              className="p-4"
+              style={{ 
+                borderTop: "1px solid rgba(148,163,184,0.2)",
+                flexShrink: 0,
+              }}
+            >
+              <button
+                className="btn w-100"
+                style={{
+                  backgroundColor: selectedFriends.length > 0 ? currentBorderColor.replace(/rgba?\(([^,]+),([^,]+),([^,]+).*\)/, (m, r, g, b) => `rgba(${r},${g},${b},1)`) : "#0f172a",
+                  color: "#020617",
+                  borderRadius: "12px",
+                  padding: "0.75rem",
+                  fontWeight: 600,
+                  border: selectedFriends.length > 0 ? "none" : "1px solid rgba(148,163,184,0.3)",
+                  opacity: selectedFriends.length > 0 ? 1 : 0.5,
+                  cursor: selectedFriends.length > 0 ? "pointer" : "not-allowed",
+                }}
+                onClick={handleSendAdvise}
+                disabled={selectedFriends.length === 0}
+              >
+                Send advise
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
