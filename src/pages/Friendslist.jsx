@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Friend from '../components/Friend.jsx'
 import Chat from '../components/Chat.jsx'
@@ -32,10 +32,20 @@ export default function Friendslist() {
     return date
   }
 
-  // Conversations are stored here in the Friendslist component
-  // Each friend has their own unique conversation history
-  // Key: friend's name, Value: array of message objects
-  const [conversations, setConversations] = useState({
+  // Helper function to convert date strings back to Date objects
+  const parseConversationDates = (conversationsObj) => {
+    const parsed = {};
+    for (const [friendName, messages] of Object.entries(conversationsObj)) {
+      parsed[friendName] = messages.map(msg => ({
+        ...msg,
+        date: msg.date ? (typeof msg.date === 'string' ? new Date(msg.date) : msg.date) : createDate(0, 12, 0)
+      }));
+    }
+    return parsed;
+  };
+
+  // Default conversations (used as fallback)
+  const defaultConversations = {
     'Elynn Lee': [
       { id: 1, text: 'Hey! Are you free this weekend?', sender: 'friend', timestamp: '09:15', date: createDate(0, 9, 15) },
       { id: 2, text: 'Yes, I should be! What\'s up?', sender: 'me', timestamp: '09:18', date: createDate(0, 9, 18) },
@@ -122,7 +132,54 @@ export default function Friendslist() {
       { id: 4, text: 'Right? It gets even better', sender: 'me', timestamp: '13:30', date: createDate(14, 13, 30) },
       { id: 5, text: 'Can\'t wait to discuss it when I finish!', sender: 'friend', timestamp: '13:32', date: createDate(14, 13, 32) },
     ],
-  })
+  };
+
+  // Initialize conversations from localStorage or use default
+  const getInitialConversations = () => {
+    const saved = localStorage.getItem('se_conversations');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Merge with defaults to ensure all friends have conversations
+        const merged = { ...defaultConversations, ...parseConversationDates(parsed) };
+        return merged;
+      } catch (e) {
+        console.error('Error parsing saved conversations:', e);
+        return defaultConversations;
+      }
+    }
+    // Return default conversations if nothing saved
+    return defaultConversations;
+  };
+
+  const [conversations, setConversations] = useState(getInitialConversations);
+
+  // Listen for conversation updates from Home.jsx
+  useEffect(() => {
+    const handleConversationsUpdate = () => {
+      const saved = localStorage.getItem('se_conversations');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          // Merge with defaults to ensure all friends have conversations
+          const merged = { ...defaultConversations, ...parseConversationDates(parsed) };
+          setConversations(merged);
+        } catch (e) {
+          console.error('Error parsing saved conversations:', e);
+        }
+      }
+    };
+
+    window.addEventListener('conversationsUpdated', handleConversationsUpdate);
+    return () => {
+      window.removeEventListener('conversationsUpdated', handleConversationsUpdate);
+    };
+  }, []);
+
+  // Save conversations to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('se_conversations', JSON.stringify(conversations));
+  }, [conversations]);
 
   const handleFriendClick = (friend) => {
     setSelectedFriend(friend)
@@ -224,10 +281,15 @@ export default function Friendslist() {
       date: new Date()
     }
     
-    setConversations(prev => ({
-      ...prev,
-      [friendName]: [...(prev[friendName] || []), messageWithDate]
-    }))
+    setConversations(prev => {
+      const updated = {
+        ...prev,
+        [friendName]: [...(prev[friendName] || []), messageWithDate]
+      };
+      // Save to localStorage
+      localStorage.setItem('se_conversations', JSON.stringify(updated));
+      return updated;
+    });
   }
 
   return (
@@ -272,13 +334,17 @@ export default function Friendslist() {
             if (lastMessage.date) {
               const now = new Date()
               const msgDate = lastMessage.date
-              const diffMs = now - msgDate
+              
+              // Compare dates by day (ignore time)
+              const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+              const msgDateOnly = new Date(msgDate.getFullYear(), msgDate.getMonth(), msgDate.getDate())
+              const diffMs = nowDate - msgDateOnly
               const diffDays = Math.floor(diffMs / 86400000)
               const diffWeeks = Math.floor(diffDays / 7)
               
               // Format timestamp in original style
-              if (diffDays === 0) {
-                // Today - show time like "13:04"
+              if (diffDays <= 0) {
+                // Today or future (treat as today) - show time like "13:04"
                 const hours = msgDate.getHours().toString().padStart(2, '0')
                 const minutes = msgDate.getMinutes().toString().padStart(2, '0')
                 displayTimestamp = `${hours}:${minutes}`
