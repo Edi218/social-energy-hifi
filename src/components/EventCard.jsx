@@ -7,6 +7,7 @@ export default function EventCard({
   attendees = [],
   image,
   onJoin,
+  isJoined = false,
   borderColor = 'rgba(34,197,94,0.35)',
 }) {
   const preview = attendees.slice(0, 3)
@@ -79,7 +80,7 @@ export default function EventCard({
 
         {/* ATTENDEES */}
         {attendees.length > 0 && (
-          <div className="d-flex align-items-center mb-4 text-light opacity-90">
+          <div className="d-flex align-items-center mb-3 text-light opacity-90">
             <i className="bi bi-people-fill me-2" />
 
             <div className="d-flex align-items-center">
@@ -109,21 +110,53 @@ export default function EventCard({
           </div>
         )}
 
-        {/* JOIN BUTTON */}
-        <button
-          className="btn w-100"
-          style={{
-            backgroundColor: '#0f172a',
-            color: '#f9fafb',
-            border: '1px solid rgba(148,163,184,0.3)',
-            padding: '0.75rem',
-            borderRadius: '12px',
-            fontWeight: 600,
-          }}
-          onClick={onJoin}
-        >
-          Join Event
-        </button>
+        {/* JOIN/JOINED BUTTON - Bottom Right */}
+        <div className="d-flex justify-content-end">
+          {isJoined ? (
+            <button
+              className="btn"
+              disabled
+              style={{
+                backgroundColor: '#6c757d',
+                color: '#ffffff',
+                border: 'none',
+                padding: '0.5rem 1.25rem',
+                borderRadius: '8px',
+                fontWeight: 600,
+                fontSize: '0.9rem',
+                cursor: 'not-allowed',
+                opacity: 0.7,
+              }}
+            >
+              Joined
+            </button>
+          ) : (
+            <button
+              className="btn"
+              style={{
+                backgroundColor: '#28a745',
+                color: '#ffffff',
+                border: 'none',
+                padding: '0.5rem 1.25rem',
+                borderRadius: '8px',
+                fontWeight: 600,
+                fontSize: '0.9rem',
+                transition: 'all 0.2s ease',
+              }}
+              onClick={onJoin}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = '#218838';
+                e.target.style.transform = 'scale(1.05)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = '#28a745';
+                e.target.style.transform = 'scale(1)';
+              }}
+            >
+              Join
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )

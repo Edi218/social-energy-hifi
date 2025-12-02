@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import EventCard from "../components/EventCard.jsx";
 import QuoteCard from "../components/QuoteCard.jsx";
+import { addEnrolledEvent, getEnrolledEvents } from "../utils/eventManager.js";
 
 export default function Home() {
   // State for event details modal
@@ -99,6 +101,72 @@ export default function Home() {
       : savedLevel === 4
       ? "mediumhigh"
       : "high";
+
+  const navigate = useNavigate();
+
+  // Small “nudge” popup state
+  const [showNudge, setShowNudge] = useState(false);
+
+  // Show popup after 100 seconds on the home page
+  useEffect(() => {
+    const alreadyShown = sessionStorage.getItem("nudge_shown");
+
+    if (alreadyShown) return;
+
+    const timer = setTimeout(() => {
+      setShowNudge(true);
+      sessionStorage.setItem("nudge_shown", "true");
+    }, 10_000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const nudgeByBucket = {
+    verylow: {
+      title: "Tiny Steps Are Enough",
+      text:
+        "You’ve been at it for a while. How about a short, low-key break or a quiet check-in with someone you trust?",
+      primaryLabel: "Browse gentle events",
+      secondaryLabel: "Maybe later",
+    },
+    low: {
+      title: "A Small Social Boost",
+      text:
+        "A quick coffee chat or short walk could gently lift your mood without overwhelming you.",
+      primaryLabel: "See low-key ideas",
+      secondaryLabel: "Keep focusing",
+    },
+    medium: {
+      title: "Ready for a Little Break?",
+      text:
+        "You’ve been focused for a while. A short social break can help you come back with more energy.",
+      primaryLabel: "Check events",
+      secondaryLabel: "Stay here",
+    },
+    mediumhigh: {
+      title: "Channel Your Momentum",
+      text:
+        "You seem energized! This might be a great moment to join a group activity or plan something with friends.",
+      primaryLabel: "See group activities",
+      secondaryLabel: "Not now",
+    },
+    high: {
+      title: "Put Your Energy to Use",
+      text:
+        "You’re fully charged! Perfect moment to join an event, invite friends, or start something fun.",
+      primaryLabel: "Open events",
+      secondaryLabel: "Maybe later",
+    },
+    unknown: {
+      title: "How Are You Feeling?",
+      text:
+        "Tell me how you’re feeling so we can suggest the right type of break or activity for you.",
+      primaryLabel: "Set my energy level",
+      secondaryLabel: "Skip for now",
+    },
+  };
+
+  const nudgeConfig = nudgeByBucket[energyBucket] || nudgeByBucket.unknown;
 
   const quote = quoteByBucket[energyBucket] || quoteByBucket.unknown;
 
@@ -381,7 +449,104 @@ export default function Home() {
 
   // Show more/less
   const [showAll, setShowAll] = useState(false);
-  const visibleEvents = showAll ? eventsForUser : eventsForUser.slice(0, 3);
+  const [enrolledEvents, setEnrolledEvents] = useState([]);
+  
+  // Sort state
+  const [showSortMenu, setShowSortMenu] = useState(false);
+  const [sortType, setSortType] = useState(null); // 'date', 'distance', 'commonFriends'
+  
+  // User's friends list (for common friends filter)
+  const userFriends = [
+    'Elynn Lee', 'Oscar Dum', 'Carlo Emilion', 'Daniel Jay Park', 
+    'Liam Cortez', 'Sophia Nguyen', 'Ethan Morales', 'Ava Becker',
+    'Noah Tanaka', 'Chloe Ricci', 'Mateo Alvarez', 'Lucas Hwang', 'Isabella Fontaine'
+  ];
+  
+  // Apply sorting to events - use useMemo to recalculate when sortType or eventsForUser changes
+  const sortedEvents = useMemo(() => {
+    if (!sortType) return eventsForUser;
+    
+    let sorted = [...eventsForUser];
+    
+    if (sortType === 'date') {
+      // Sort by date: earlier events first
+      const today = new Date();
+      const dayOfWeek = today.getDay();
+      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      
+      sorted.sort((a, b) => {
+        const getEventDate = (event) => {
+          const lower = event.timeLabel.toLowerCase();
+          const timeMatch = event.timeLabel.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+          let hours = timeMatch ? parseInt(timeMatch[1]) : 12;
+          const ampm = timeMatch ? timeMatch[3].toUpperCase() : 'PM';
+          if (ampm === 'PM' && hours !== 12) hours += 12;
+          if (ampm === 'AM' && hours === 12) hours = 0;
+          
+          if (lower.includes('today') || lower.includes('tonight')) {
+            return dayOfWeek * 100 + hours;
+          } else if (lower.includes('tomorrow')) {
+            return ((dayOfWeek + 1) % 7) * 100 + hours;
+          } else {
+            for (let i = 0; i < dayNames.length; i++) {
+              if (lower.includes(dayNames[i].toLowerCase())) {
+                // Adjust day index to be relative to today
+                let dayIndex = i;
+                if (dayIndex < dayOfWeek) dayIndex += 7; // Next week
+                return dayIndex * 100 + hours;
+              }
+            }
+          }
+          return 9999; // Unknown dates go last
+        };
+        
+        return getEventDate(a) - getEventDate(b);
+      });
+    } else if (sortType === 'commonFriends') {
+      // Sort by number of common friends: more friends first
+      sorted.sort((a, b) => {
+        const getCommonFriendsCount = (event) => {
+          if (!event.attendees) return 0;
+          return event.attendees.filter(attendee => 
+            userFriends.includes(attendee)
+          ).length;
+        };
+        
+        return getCommonFriendsCount(b) - getCommonFriendsCount(a);
+      });
+    } else if (sortType === 'distance') {
+      // Distance sort: closest first (placeholder - no actual sorting yet)
+      // Keep original order for now
+    }
+    
+    return sorted;
+  }, [sortType, eventsForUser, userFriends]);
+
+  // Load enrolled events
+  useEffect(() => {
+    const loadEvents = () => {
+      setEnrolledEvents(getEnrolledEvents());
+    };
+    loadEvents();
+    window.addEventListener('eventsUpdated', loadEvents);
+    return () => window.removeEventListener('eventsUpdated', loadEvents);
+  }, []);
+
+  // Check if an event is already joined
+  const isEventJoined = (event) => {
+    return enrolledEvents.some(
+      (e) => e.title === event.title && e.timeLabel === event.timeLabel
+    );
+  };
+
+  // Handle joining an event
+  const handleJoinEvent = (event) => {
+    addEnrolledEvent(event);
+    // Trigger a re-render by updating state (you could use a custom event or context)
+    window.dispatchEvent(new Event('eventsUpdated'));
+  };
+
+  const visibleEvents = showAll ? sortedEvents : sortedEvents.slice(0, 3);
 
   // Handlers for event modal
   const handleJoinEvent = (event) => {
@@ -535,16 +700,130 @@ export default function Home() {
 
       <hr className="border-secondary my-3" />
 
-      <div className="d-flex align-items-center mb-3 mt-4">
-        <i
-          className="bi bi-lightning-charge-fill me-2 section-icon"
-          style={{
-            fontSize: "20px",
-            color: currentBorderColor,   
-            filter: "drop-shadow(0 0 6px rgba(0,0,0,0.6))",
-          }}
-        ></i>
-        <h4 className="mb-0 text-white section-title">Recommended Events</h4>
+      <div className="d-flex align-items-center justify-content-between mb-3 mt-4">
+        <div className="d-flex align-items-center">
+          <i
+            className="bi bi-lightning-charge-fill me-2 section-icon"
+            style={{
+              fontSize: "20px",
+              color: currentBorderColor,   
+              filter: "drop-shadow(0 0 6px rgba(0,0,0,0.6))",
+            }}
+          ></i>
+          <h4 className="mb-0 text-white section-title">Recommended Events</h4>
+        </div>
+        
+        {/* Sort Button */}
+        <div className="position-relative">
+          <button
+            className="btn btn-outline-secondary d-flex align-items-center"
+            style={{
+              borderColor: 'rgba(148, 163, 184, 0.3)',
+              color: '#f8fafc',
+              fontSize: '0.9rem',
+              padding: '0.4rem 0.8rem',
+              whiteSpace: 'nowrap',
+            }}
+            onClick={() => setShowSortMenu(!showSortMenu)}
+          >
+            <i className="bi bi-funnel me-2"></i>
+            <span>Sort by</span>
+            <i className={`bi bi-chevron-${showSortMenu ? 'up' : 'down'} ms-2`} style={{ fontSize: '0.8rem' }}></i>
+          </button>
+          
+          {/* Sort Menu */}
+          {showSortMenu && (
+            <div
+              className="card bg-dark border border-secondary"
+              style={{
+                position: 'absolute',
+                top: '100%',
+                right: 0,
+                marginTop: '0.5rem',
+                minWidth: '220px',
+                zIndex: 100,
+                boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
+              }}
+            >
+              <div className="card-body p-2">
+                {/* Date Sort */}
+                <button
+                  className="btn btn-dark text-start border-0 w-100"
+                  onClick={() => {
+                    if (sortType === 'date') {
+                      setSortType(null);
+                    } else {
+                      setSortType('date');
+                    }
+                  }}
+                  style={{
+                    backgroundColor: sortType === 'date' ? 'rgba(148, 163, 184, 0.2)' : 'transparent',
+                  }}
+                >
+                  <i className="bi bi-calendar3 me-2"></i>
+                  Date (earlier first)
+                </button>
+                
+                <hr className="my-2 border-secondary" />
+                
+                {/* Common Friends Sort */}
+                <button
+                  className="btn btn-dark text-start border-0 w-100"
+                  onClick={() => {
+                    if (sortType === 'commonFriends') {
+                      setSortType(null);
+                    } else {
+                      setSortType('commonFriends');
+                    }
+                  }}
+                  style={{
+                    backgroundColor: sortType === 'commonFriends' ? 'rgba(148, 163, 184, 0.2)' : 'transparent',
+                  }}
+                >
+                  <i className="bi bi-people me-2"></i>
+                  Common Friends (more first)
+                </button>
+                
+                <hr className="my-2 border-secondary" />
+                
+                {/* Distance Sort (placeholder) */}
+                <button
+                  className="btn btn-dark text-start border-0 w-100"
+                  onClick={() => {
+                    if (sortType === 'distance') {
+                      setSortType(null);
+                    } else {
+                      setSortType('distance');
+                    }
+                  }}
+                  style={{
+                    backgroundColor: sortType === 'distance' ? 'rgba(148, 163, 184, 0.2)' : 'transparent',
+                    opacity: 0.7,
+                  }}
+                >
+                  <i className="bi bi-geo-alt me-2"></i>
+                  Distance (closest first)
+                </button>
+                
+                {/* Clear Sort */}
+                {sortType && (
+                  <>
+                    <hr className="my-2 border-secondary" />
+                    <button
+                      className="btn btn-dark text-start border-0 w-100 text-danger"
+                      onClick={() => {
+                        setSortType(null);
+                      }}
+                    >
+                      <i className="bi bi-x-circle me-2"></i>
+                      Clear Sort
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Event list */}
@@ -558,12 +837,16 @@ export default function Home() {
             attendees={ev.attendees}
             image={ev.image}
             borderColor={currentBorderColor}
+<<<<<<< HEAD
+=======
+            isJoined={isEventJoined(ev)}
+>>>>>>> 7355c0b4ffb298885af95288993e91bfc9eda9e9
             onJoin={() => handleJoinEvent(ev)}
           />
         ))}
       </div>
 
-      {eventsForUser.length > 3 && (
+      {sortedEvents.length > 3 && (
         <div className="text-center mt-3">
           {!showAll ? (
             <button
@@ -582,6 +865,7 @@ export default function Home() {
           )}
         </div>
       )}
+<<<<<<< HEAD
 
       {/* Event Details Modal */}
       {isEventModalOpen && selectedEvent && (
@@ -864,6 +1148,80 @@ export default function Home() {
               >
                 Send advise
               </button>
+=======
+       {showNudge && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+          style={{
+            background: "rgba(0,0,0,0.7)",
+            zIndex: 2000,
+          }}
+          onClick={() => setShowNudge(false)} // clicking backdrop closes
+        >
+          <div
+            className="card"
+            style={{
+              width: "90%",
+              maxWidth: "420px",
+              backgroundColor: "#020617",
+              borderRadius: "18px",
+              border: `1px solid ${currentBorderColor}`,
+              boxShadow: "0 18px 40px rgba(0,0,0,0.6)",
+            }}
+            onClick={(e) => e.stopPropagation()} // prevent backdrop close
+          >
+            <div className="card-body d-flex">
+              {/* Icon circle */}
+              <div
+                className="me-3 d-flex align-items-start justify-content-center"
+              >
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center"
+                  style={{
+                    width: 48,
+                    height: 48,
+                    backgroundColor: "#0f172a",
+                    border: `1px solid ${currentBorderColor}`,
+                    fontSize: "1.5rem",
+                  }}
+                >
+                  ⚡
+                </div>
+              </div>
+
+              {/* Text + actions */}
+              <div style={{ flex: 1 }}>
+                <h5 className="text-white fw-semibold mb-2">
+                  {nudgeConfig.title}
+                </h5>
+                <p className="text-secondary mb-3" style={{ fontSize: "0.9rem" }}>
+                  {nudgeConfig.text}
+                </p>
+
+                <div className="d-flex gap-2 justify-content-end">
+                  <button
+                    className="btn btn-sm btn-outline-secondary"
+                    onClick={() => setShowNudge(false)}
+                  >
+                    {nudgeConfig.secondaryLabel}
+                  </button>
+
+                  <button
+                    className="btn btn-sm btn-success"
+                    onClick={() => {
+                      setShowNudge(false);
+                      if (energyBucket === "unknown") {
+                        navigate("/"); // go back to energy selection
+                      } else {
+                        navigate("/home"); // or "/home" or "/home/calendar"
+                      }
+                    }}
+                  >
+                    {nudgeConfig.primaryLabel}
+                  </button>
+                </div>
+              </div>
+>>>>>>> 7355c0b4ffb298885af95288993e91bfc9eda9e9
             </div>
           </div>
         </div>
