@@ -284,6 +284,31 @@ export default function Home() {
       image: "/images/events/tea.jpg",
       description: "A cozy tea break in the alumni lounge to unwind and chat casually. Bring your favorite mug and enjoy some quiet conversation. It's all about low-key vibes and good company.",
     },
+    {
+      title: "Solo Reading Corner",
+      timeLabel: "Thursday at 6:30 PM",
+      location: "ETH Main Library, Reading Nook",
+      attendees: ["Chloe"],
+      image: "/images/events/reading.jpg",
+      description: "A super quiet reading session tucked away in a cozy corner of the library. We'll each bring our own book or article and just read in silence. Perfect if you want to be around someone without needing to talk much.",
+    },
+    {
+     title: "Late-Afternoon Headphone Study",
+      timeLabel: "Sunday at 4:00 PM",
+      location: "HG Lounge Area",
+     attendees: ["Mateo"],
+      image: "/images/events/headphones.avif",
+      description: "A calm study meetup where we both bring headphones and work on our laptops. No obligation to chat, just a gentle sense of company while we focus on our own tasks.",
+    },
+    {
+      title: "Mindful Breathing Break",
+      timeLabel: "Today at 3:30 PM",
+      location: "Polyterrasse, Quiet Corner",
+      attendees: ["Ava"],
+      image: "/images/events/mindful.jpg",
+      description: "A short, low-key break to sit, breathe, and decompress together. We'll find a quiet spot, enjoy the view, and do a few minutes of calm breathing—no intense conversation, just a soft reset for the day.",
+    },
+
   ];
 
   // ⭐ LOW SOCIAL ENERGY
@@ -319,6 +344,30 @@ export default function Home() {
       attendees: ["Ava"],
       image: "/images/events/quiet-study.jpg",
       description: "A focused study session in the main library's quiet section. We'll work on our assignments together but independently, sharing the productive atmosphere. Ideal for when you need to get work done in a calm environment.",
+    },
+    {
+      title: "Gentle Yoga & Stretch",
+      timeLabel: "Sunday at 10:00 AM",
+      location: "ETH Hönggerberg Lawn",
+      attendees: ["Sophia", "Chloe"],
+      image: "/images/events/yoga.jpg",
+      description: "A relaxed morning session of light stretching and beginner-friendly yoga. We'll move slowly, chat a bit between poses, and just enjoy a soft start to the day.",
+    },
+    {
+      title: "Quiet Café Work Session",
+      timeLabel: "Thursday at 5:30 PM",
+      location: "Café Galileo, ETH Zentrum",
+      attendees: ["Lucas"],
+      image: "/images/events/cafe-work.jpg",
+      description: "We'll grab a drink, find a quiet table, and work on our laptops. Low-pressure conversation, mostly focused on getting things done with a comforting background buzz.",
+    },
+    {
+      title: "Sunset Bench Hangout",
+      timeLabel: "Tonight at 7:30 PM",
+      location: "Polyterrasse Viewpoint",
+      attendees: ["Ethan", "Ava"],
+      image: "/images/events/sunset.jpg",
+      description: "A calm evening sitting on a bench, watching the sunset over Zürich. We'll talk if we feel like it or just enjoy the view together. No plans, no expectations—just a soft end to the day.",
     },
   ];
 
@@ -356,6 +405,31 @@ export default function Home() {
       image: "/images/events/mensa2.jpg",
       description: "Our regular Thursday lunch meetup at the Mensa! We'll grab food together and catch up on the week. It's become a nice tradition that helps us stay connected and share what's going on in our lives.",
     },
+    {
+      title: "Problem-Solving Session",
+      timeLabel: "Monday at 5:00 PM",
+      location: "HG G Floor Study Area",
+      attendees: ["Daniel", "Chloe", "Ava"],
+      image: "/images/events/problem-solving.jpg",
+      description: "A focused but friendly meetup to work through problem sets together. We'll discuss tricky questions, share approaches, and keep things supportive and collaborative.",
+    },
+    {
+      title: "Mensa Dessert Break",
+      timeLabel: "Friday at 2:30 PM",
+      location: "ETH Mensa Polyterrasse",
+      attendees: ["Isabella", "Mateo"],
+      image: "/images/events/dessert.jpg",
+      description: "A short afternoon meetup just for coffee, dessert, and a mid-day reset. We'll chat about how the week is going and enjoy something sweet before heading back to work.",
+    },
+    {
+      title: "Campus Photo Walk",
+      timeLabel: "Saturday at 3:00 PM",
+      location: "ETH Zentrum Campus",
+      attendees: ["Lucas", "Sophia"],
+      image: "/images/events/photo-walk.webp",
+      description: "A relaxed walk around campus to take photos of cool spots and views. We'll explore, chat, and maybe grab a drink afterward—social, but still easygoing and flexible.",
+    },
+
   ];
 
   // ⭐ MEDIUM-HIGH SOCIAL ENERGY
@@ -400,6 +474,31 @@ export default function Home() {
       image: "/images/events/mensa2.jpg",
       description: "A lively lunch meetup at the Mensa where we'll enjoy good food and catch up on everything. We'll share what we're working on, discuss upcoming projects, and just enjoy each other's company. Always a highlight of the week!",
     },
+    {
+      title: "Brainstorm & Whiteboard Jam",
+      timeLabel: "Wednesday at 5:00 PM",
+      location: "ETH HG E Floor Seminar Room",
+      attendees: ["Oscar", "Daniel", "Chloe", "Mateo"],
+      image: "/images/events/whiteboard.jpg",
+      description: "An energetic session where we grab a whiteboard and brainstorm ideas—projects, exams, or random side ideas. Expect lively discussion, quick sketches, and lots of shared thinking.",
+    },
+    {
+      title: "City Exploration Walk",
+      timeLabel: "Sunday at 1:00 PM",
+      location: "Zürich Old Town (Neumarkt)",
+      attendees: ["Ava", "Lucas", "Isabella"],
+      image: "/images/events/city-walk.jpg",
+      description: "A longer walk through Zürich’s old town, with time to explore hidden alleys, grab snacks, and talk. It's social and active, but still relaxed enough to go with the flow.",
+    },
+    {
+      title: "Chill Games at CAB",
+      timeLabel: "Friday at 7:00 PM",
+      location: "CAB Common Room",
+      attendees: ["Ethan", "Liam", "Carlo", "Sophia"],
+      image: "/images/events/cardgames.webp",
+      description: "An evening of light card and party games in a common room. Expect laughs, friendly competition, and breaks to chat—lively, but not overwhelming.",
+    },
+
   ];
 
   // ⭐ HIGH SOCIAL ENERGY
@@ -436,6 +535,31 @@ export default function Home() {
       image: "/images/events/study.png",
       description: "An energetic and collaborative study session with the whole crew! We'll tackle challenging problems together, share knowledge, and keep the momentum high. With regular breaks for laughs and snacks, it's both productive and fun. Perfect for when you're feeling motivated and ready to conquer your work!",
     },
+    {
+      title: "Student Party Night",
+      timeLabel: "Saturday at 10:00 PM",
+      location: "StuZ Night Event",
+      attendees: ["Lucas", "Isabella", "Ethan", "Sophia", "Daniel"],
+      image: "/images/events/party.jpg",
+      description: "A loud, high-energy student party with music, dancing, and a big crowd. We'll move between groups, meet new people, and enjoy the full weekend party vibe.",
+    },
+    {
+      title: "Intense ASVZ HIIT Session",
+      timeLabel: "Wednesday at 7:30 PM",
+      location: "ASVZ Polyterrasse Gym",
+      attendees: ["Carlo", "Liam", "Oscar"],
+      image: "/images/events/hiit.jpg",
+      description: "A fast-paced HIIT workout where we really push ourselves. Lots of energy, encouragement, and endorphins—perfect if you're in the mood to sweat and feel pumped afterward.",
+    },
+    {
+      title: "Bowling & Arcade Night",
+      timeLabel: "Friday at 8:30 PM",
+      location: "Bowling Center Zürich",
+      attendees: ["Ava", "Mateo", "Chloe", "Daniel", "Lucas"],
+      image: "/images/events/bowling.jpg",
+      description: "A lively night of bowling, arcade games, and friendly trash talk. We'll cheer, compete, and laugh a lot—ideal for when you want something fun and energetic with the group.",
+    },
+
   ];
 
   // SELECT EVENTS BASED ON BUCKET
