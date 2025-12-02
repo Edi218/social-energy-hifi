@@ -548,7 +548,7 @@ export default function Home() {
       timeLabel: "Wednesday at 7:30 PM",
       location: "ASVZ Polyterrasse Gym",
       attendees: ["Carlo", "Liam", "Oscar"],
-      image: "/images/events/hiit.jpg",
+      image: "/images/events/hiit.avif",
       description: "A fast-paced HIIT workout where we really push ourselves. Lots of energy, encouragement, and endorphins—perfect if you're in the mood to sweat and feel pumped afterward.",
     },
     {
