@@ -1,6 +1,12 @@
 import React from "react";
 
-export default function QuoteCard({ title, text, iconBg = "#1e293b", icon, borderColor }) {
+export default function QuoteCard({
+  title,
+  text,
+  iconBg = "#1e293b",
+  icon,
+  borderColor,
+}) {
   return (
     <div
       className="card mb-4"
@@ -12,9 +18,9 @@ export default function QuoteCard({ title, text, iconBg = "#1e293b", icon, borde
       }}
     >
       <div className="d-flex align-items-start gap-3">
-
         {/* ICON CIRCLE */}
         <div
+          className="quote-icon pulse-icon"
           style={{
             width: 52,
             height: 52,
@@ -26,6 +32,7 @@ export default function QuoteCard({ title, text, iconBg = "#1e293b", icon, borde
             fontSize: "1.4rem",
             color: "#facc15",
             flexShrink: 0,
+            border: `1px solid ${borderColor}`,
           }}
         >
           {icon}
@@ -34,11 +41,13 @@ export default function QuoteCard({ title, text, iconBg = "#1e293b", icon, borde
         {/* QUOTE CONTENT */}
         <div>
           <h5 className="text-white fw-semibold mb-2">{title}</h5>
-          <p className="text-secondary mb-0" style={{ lineHeight: "1.45rem" }}>
+          <p
+            className="text-secondary mb-0"
+            style={{ lineHeight: "1.45rem" }}
+          >
             {text}
           </p>
         </div>
-
       </div>
     </div>
   );

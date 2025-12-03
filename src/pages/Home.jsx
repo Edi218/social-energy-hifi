@@ -766,54 +766,75 @@ export default function Home() {
       <hr className="border-secondary my-3" />
 
       {/* UPCOMING SECTION */}
-      <div className="mb-4">
-        <div className="d-flex align-items-center mb-3">
-          <i
-            className="bi bi-calendar-event text-light me-2"
-            style={{ fontSize: "20px" }}
-          ></i>
-          <h4 className="mb-0 text-white">Upcoming</h4>
-        </div>
+<div className="mb-4">
+  <div className="d-flex align-items-center justify-content-between mb-3">
+    {/* Left: title + icon */}
+    <div className="d-flex align-items-center">
+      <i
+        className="bi bi-calendar-event text-light me-2"
+        style={{ fontSize: "20px" }}
+      ></i>
+      <h4 className="mb-0 text-white">Upcoming</h4>
+    </div>
 
-        {/* KEEP THESE (Priority) */}
-        <div className="mb-3">
-          <div className="d-flex align-items-center mb-2">
-            <i
-              className="bi bi-exclamation-circle-fill text-danger me-2"
-              style={{ fontSize: "18px" }}
-            />
-            <span className="text-white fw-semibold">Keep These</span>
-          </div>
-          {priorityItems.map((item, idx) => (
-            <ScheduleCard
-              key={`p-${idx}`}
-              title={item.title}
-              timeLabel={item.timeLabel}
-              variant="priority"
-            />
-          ))}
-        </div>
+    {/* Right: round calendar button linking to Calendar page */}
+    <button
+      type="button"
+      className="btn btn-outline-secondary d-flex align-items-center justify-content-center"
+      style={{
+        width: "36px",
+        height: "36px",
+        borderRadius: "50%",
+        padding: 0,
+        borderColor: "rgba(148,163,184,0.5)",
+        color: "#e5e7eb",
+        backgroundColor: "transparent",
+      }}
+      onClick={() => navigate("/home/calendar")}  // adjust path if needed
+      title="Open calendar"
+    >
+      <i className="bi bi-calendar4-week" style={{ fontSize: "18px" }}></i>
+    </button>
+  </div>
 
-        {/* FLEXIBLE */}
-        <div>
-          <div className="d-flex align-items-center mb-2">
-            <i
-              className="bi bi-check-circle-fill text-success me-2"
-              style={{ fontSize: "18px" }}
-            />
-            <span className="text-white fw-semibold">Flexible</span>
-          </div>
-          {flexibleItems.map((item, idx) => (
-            <ScheduleCard
-              key={`f-${idx}`}
-              title={item.title}
-              timeLabel={item.timeLabel}
-              variant="flexible"
-            />
-          ))}
-        </div>
-      </div>
+  {/* KEEP THESE (Priority) */}
+  <div className="mb-3">
+    <div className="d-flex align-items-center mb-2">
+      <i
+        className="bi bi-exclamation-circle-fill text-danger me-2"
+        style={{ fontSize: "18px" }}
+      />
+      <span className="text-white fw-semibold">Keep These</span>
+    </div>
+    {priorityItems.map((item, idx) => (
+      <ScheduleCard
+        key={`p-${idx}`}
+        title={item.title}
+        timeLabel={item.timeLabel}
+        variant="priority"
+      />
+    ))}
+  </div>
 
+  {/* FLEXIBLE */}
+  <div>
+    <div className="d-flex align-items-center mb-2">
+      <i
+        className="bi bi-check-circle-fill text-success me-2"
+        style={{ fontSize: "18px" }}
+      />
+      <span className="text-white fw-semibold">Flexible</span>
+    </div>
+    {flexibleItems.map((item, idx) => (
+      <ScheduleCard
+        key={`f-${idx}`}
+        title={item.title}
+        timeLabel={item.timeLabel}
+        variant="flexible"
+      />
+    ))}
+  </div>
+</div>
       <hr className="border-secondary my-3" />
 
       <div className="d-flex align-items-center justify-content-between mb-3 mt-4">
