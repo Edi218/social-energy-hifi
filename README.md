@@ -1,7 +1,7 @@
 
 # Social Energy – Hi‑Fi Prototype
 
-React + Vite + Bootstrap starter for HCI Milestones 3–4.
+React + Vite + Bootstrap Hi Fi Prototype HCI group 14
 
 ## Quick start
 
