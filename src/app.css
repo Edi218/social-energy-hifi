@@ -14,9 +14,10 @@ html, body, #root {
 
 /* the actual phone screen */
 .phone-frame {
-  width: 390px;           /* typical mobile width (iPhone-ish) */
-  max-width: 100%;        /* so it still works on very small screens */
+  width: 100%;                /* 👈 stretch to full width */
+  max-width: 430px;           /* nice phone-ish width on big screens */
   min-height: 100vh;
+  margin: 0 auto;
   background: #050816;    /* app background */
   color: #f8fafc;
   box-shadow: 0 0 40px rgba(0,0,0,0.6);
