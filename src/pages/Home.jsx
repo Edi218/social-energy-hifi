@@ -1363,7 +1363,7 @@ export default function Home() {
             <div className="card-body d-flex">
               <div className="me-3 d-flex align-items-start justify-content-center">
                 <div
-                  className="rounded-circle d-flex align-items-center justify-content-center"
+                  className="rounded-circle d-flex align-items-center justify-content-center pulse-icon"
                   style={{
                     width: 48,
                     height: 48,

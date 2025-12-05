@@ -7,8 +7,14 @@ export default function EnergyLevelSelection() {
   const navigate = useNavigate()
 
   const handleSkip = () => {
-    navigate('/home')
-  }
+  // remove any previously selected level
+  window.localStorage.removeItem("se_energy_level");
+  // (optional) also clear conversations / events if you want a clean test state
+  // window.localStorage.removeItem("se_conversations");
+  // window.localStorage.removeItem("se_enrolled_events");
+
+  navigate("/home");
+};
 
   const handleContinue = () => {
     navigate('/home')
