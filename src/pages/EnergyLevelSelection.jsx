@@ -89,7 +89,8 @@ export default function EnergyLevelSelection() {
                 >
                   {/* Mood Face */}
                   <div
-                    style={{
+                    className = "pulse-icon"
+                    style={{ 
                       width: isSelected ? '64px' : '56px',
                       height: isSelected ? '64px' : '56px',
                       borderRadius: '50%',

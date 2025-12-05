@@ -837,7 +837,7 @@ export default function Home() {
 </div>
       <hr className="border-secondary my-3" />
 
-      <div className="d-flex align-items-center justify-content-between mb-3 mt-4">
+      <div id="events-section" className="d-flex align-items-center justify-content-between mb-3 mt-4">
         <div className="d-flex align-items-center">
           <i
             className="bi bi-lightning-charge-fill me-2 section-icon"
@@ -1402,9 +1402,13 @@ export default function Home() {
                       if (energyBucket === "unknown") {
                         navigate("/");
                       } else {
-                        navigate("/home");
-                      }
-                    }}
+                    // already on /home – scroll to events section
+                    const el = document.getElementById("events-section");
+                    if (el) {
+                      el.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }
+                  }
+                }}
                   >
                     {nudgeConfig.primaryLabel}
                   </button>
