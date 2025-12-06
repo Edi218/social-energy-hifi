@@ -21,7 +21,7 @@ export default function EventCard({
 
   return (
     <div
-      className="card mb-4"
+      className="card mb-4 event-card"
       style={{
         backgroundColor: '#020617',
         borderRadius: '18px',

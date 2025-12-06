@@ -2,13 +2,72 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import EventCard from "../components/EventCard.jsx";
 import QuoteCard from "../components/QuoteCard.jsx";
-import { addEnrolledEvent, getEnrolledEvents } from "../utils/eventManager.js";
+import { addEnrolledEvent, getEnrolledEvents, parseEventTime, } from "../utils/eventManager.js";
+
+/** ---------- Shared helpers for priority / flexible ---------- */
+const PRIORITY_STORAGE_KEY = "se_event_priority_map";
+
+const DEADLINE_STORAGE_KEY = "se_deadline_events";
+
+const loadDeadlines = () => {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(DEADLINE_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+};
+
+const sortUpcomingEvents = (events) => {
+  const dayOrder = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+  return [...events].sort((a, b) => {
+    const { day: dayA, hour24: hourA } = parseEventTime(a.timeLabel);
+    const { day: dayB, hour24: hourB } = parseEventTime(b.timeLabel);
+
+    const idxA = dayOrder.indexOf(dayA);
+    const idxB = dayOrder.indexOf(dayB);
+
+    const keyA = (idxA === -1 ? 999 : idxA) * 100 + (hourA ?? 0);
+    const keyB = (idxB === -1 ? 999 : idxB) * 100 + (hourB ?? 0);
+
+    return keyA - keyB;
+  });
+};
+
+const makeEventKey = (title, timeLabel) => `${title}__${timeLabel}`;
+
+const loadPriorityMap = () => {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem(PRIORITY_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+};
+
+const savePriorityMap = (map) => {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(PRIORITY_STORAGE_KEY, JSON.stringify(map));
+};
 
 export default function Home() {
+  const navigate = useNavigate();
+
+  const [deadlines, setDeadlines] = useState(loadDeadlines());
+
+  // update when modified in calendar
+  useEffect(() => {
+    const handler = () => setDeadlines(loadDeadlines());
+    window.addEventListener("deadlinesUpdated", handler);
+    return () => window.removeEventListener("deadlinesUpdated", handler);
+  }, []);
 
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
-  
+
   // State for advise modal
   const [isAdviseModalOpen, setIsAdviseModalOpen] = useState(false);
   const [selectedFriends, setSelectedFriends] = useState([]);
@@ -19,23 +78,29 @@ export default function Home() {
   const [sortType, setSortType] = useState(null);
 
   const [showNudge, setShowNudge] = useState(false);
-  
+
+  // priority / flexible for all events (dummy + enrolled + own)
+  const [eventPriorityMap, setEventPriorityMap] = useState(() =>
+    loadPriorityMap()
+  );
+
   // Friends list (same as in Friendslist.jsx)
   const friendsList = [
-    'Elynn Lee',
-    'Oscar Dum',
-    'Carlo Emilion',
-    'Daniel Jay Park',
-    'Liam Cortez',
-    'Sophia Nguyen',
-    'Ethan Morales',
-    'Ava Becker',
-    'Noah Tanaka',
-    'Chloe Ricci',
-    'Mateo Alvarez',
-    'Lucas Hwang',
-    'Isabella Fontaine',
+    "Elynn Lee",
+    "Oscar Dum",
+    "Carlo Emilion",
+    "Daniel Jay Park",
+    "Liam Cortez",
+    "Sophia Nguyen",
+    "Ethan Morales",
+    "Ava Becker",
+    "Noah Tanaka",
+    "Chloe Ricci",
+    "Mateo Alvarez",
+    "Lucas Hwang",
+    "Isabella Fontaine",
   ];
+
   // Read saved energy level
   const savedLevel = (() => {
     const raw = window.localStorage.getItem("se_energy_level");
@@ -93,7 +158,6 @@ export default function Home() {
     },
   };
 
-
   // Map 1–5 → bucket
   const energyBucket =
     savedLevel == null
@@ -108,14 +172,9 @@ export default function Home() {
       ? "mediumhigh"
       : "high";
 
-  const navigate = useNavigate();
-
-  
-
-  // Show popup after 100 seconds on the home page
+  // Show popup after 10 seconds on the home page (once per tab session)
   useEffect(() => {
     const alreadyShown = sessionStorage.getItem("nudge_shown");
-
     if (alreadyShown) return;
 
     const timer = setTimeout(() => {
@@ -126,6 +185,12 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Reload priority map whenever someone updates it (Calendar, Home, later “deadline” feature)
+  useEffect(() => {
+    const handler = () => setEventPriorityMap(loadPriorityMap());
+    window.addEventListener("eventPriorityUpdated", handler);
+    return () => window.removeEventListener("eventPriorityUpdated", handler);
+  }, []);
   const nudgeByBucket = {
     verylow: {
       title: "Tiny Steps Are Enough",
@@ -187,52 +252,171 @@ export default function Home() {
   const currentBorderColor =
     borderColors[energyBucket] || borderColors.unknown;
 
-  const priorityItems = [
+  const baseUpcomingEvents = [
     {
       title: "Physics Problem Set",
-      timeLabel: "Tomorrow at 12:00 PM",
+      timeLabel: "Wednesday at 12:00 PM",
+      defaultVariant: "priority",
     },
     {
       title: "Linear Algebra Lecture",
-      timeLabel: "Tomorrow at 8:00 AM",
+      timeLabel: "Thursday at 8:00 AM",
+      defaultVariant: "priority",
     },
-  ];
-
-  const flexibleItems = [
     {
       title: "Coffee with Lucas",
-      timeLabel: "Tomorrow at 4:00 PM",
+      timeLabel: "Wednesday at 4:00 PM",
+      defaultVariant: "flexible",
     },
     {
       title: "Group Project Meeting",
-      timeLabel: "Tomorrow at 6:00 PM",
+      timeLabel: "Thursday at 6:00 PM",
+      defaultVariant: "flexible",
     },
   ];
 
-  // Small internal component for those schedule cards
-  const ScheduleCard = ({ title, timeLabel, variant }) => {
+  // Load enrolled events (joined or own created)
+  useEffect(() => {
+    const loadEvents = () => {
+      setEnrolledEvents(getEnrolledEvents());
+    };
+    loadEvents();
+    window.addEventListener("eventsUpdated", loadEvents);
+    return () => window.removeEventListener("eventsUpdated", loadEvents);
+  }, []);
+
+  // Merge seeded Upcoming events + all enrolled events (avoid duplicates)
+  const allUpcomingEvents = useMemo(() => {
+    const combined = baseUpcomingEvents.map((e) => ({
+      ...e,
+      source: "static",
+    }));
+    const existingKeys = new Set(
+      combined.map((ev) => makeEventKey(ev.title, ev.timeLabel))
+    );
+
+    enrolledEvents.forEach((ev) => {
+      const key = makeEventKey(ev.title, ev.timeLabel);
+      if (!existingKeys.has(key)) {
+        combined.push({
+          title: ev.title,
+          timeLabel: ev.timeLabel,
+          defaultVariant: "flexible", // joined / own events start as flexible
+          source: "enrolled",
+        });
+        existingKeys.add(key);
+      }
+    });
+
+    return combined;
+  }, [enrolledEvents]);
+
+    const sortDeadlines = (items) => {
+    return sortUpcomingEvents(items.map(d => ({
+      title: d.title,
+      timeLabel: d.timeLabel
+    })));
+  };
+
+  const getVariantForEvent = (title, timeLabel, defaultVariant = "flexible") => {
+    const key = makeEventKey(title, timeLabel);
+    return eventPriorityMap[key] || defaultVariant;
+  };
+
+  const priorityUpcoming = useMemo(() => {
+  const filtered = allUpcomingEvents.filter(
+    (ev) =>
+      getVariantForEvent(ev.title, ev.timeLabel, ev.defaultVariant) ===
+      "priority"
+  );
+  return sortUpcomingEvents(filtered);
+}, [allUpcomingEvents, eventPriorityMap]);
+
+const flexibleUpcoming = useMemo(() => {
+  const filtered = allUpcomingEvents.filter(
+    (ev) =>
+      getVariantForEvent(ev.title, ev.timeLabel, ev.defaultVariant) ===
+      "flexible"
+  );
+  return sortUpcomingEvents(filtered);
+}, [allUpcomingEvents, eventPriorityMap]);
+
+const upcomingDeadlines = useMemo(() => {
+  return sortDeadlines(deadlines);
+}, [deadlines]);
+
+
+
+  // Small internal component for the schedule cards
+  const ScheduleCard = ({ title, timeLabel, variant, onClick }) => {
     const isPriority = variant === "priority";
+    const isDeadline = variant === "deadline";
 
-    const borderColor = isPriority
-      ? "rgba(239, 68, 68, 0.6)" // red
-      : "rgba(34, 197, 94, 0.6)"; // green
+    const borderColor = isDeadline
+      ? "rgba(255, 165, 0, 0.9)"   // orange
+      : isPriority
+      ? "rgba(239, 68, 68, 0.8)"   // red
+      : "rgba(34, 197, 94, 0.8)";  // green
 
-    const badgeBg = isPriority ? "#7f1d1d" : "#065f46";
-    const badgeText = isPriority ? "Priority" : "Flexible";
-
+    const badgeBg = isDeadline
+      ? "#7a4a00"
+      : isPriority
+      ? "#7f1d1d"
+      : "#065f46";
+    const badgeText = isDeadline
+      ? "Deadline"
+      : isPriority
+      ? "Priority"
+      : "Flexible";
 
     return (
       <div
-        className="card mb-3"
+        className="card mb-3 schedule-card"
         style={{
           backgroundColor: "#020617",
           borderRadius: "18px",
           border: `1px solid ${borderColor}`,
+          cursor: "pointer",
+          transition:
+            "transform 0.18s ease-out, box-shadow 0.18s ease-out, border-color 0.18s ease-out",
+          position: "relative",
+          overflow: "hidden",
+        }}
+        onClick={onClick}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = "translateY(-2px) scale(1.01)";
+          e.currentTarget.style.boxShadow =
+            "0 10px 24px rgba(0,0,0,0.55), 0 0 18px rgba(148,163,184,0.35)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = "translateY(0) scale(1)";
+          e.currentTarget.style.boxShadow = "none";
         }}
       >
+        {/* subtle shine overlay */}
+        <div
+          className="schedule-card-shine"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: "-60%",
+            width: "50%",
+            height: "100%",
+            background:
+              "linear-gradient(120deg, transparent, rgba(255,255,255,0.12), transparent)",
+            transform: "skewX(-25deg)",
+            pointerEvents: "none",
+          }}
+        />
+
         <div className="card-body d-flex justify-content-between align-items-center">
           <div>
-            <h5 className="text-white fw-semibold mb-2" style={{ fontSize: "1.05rem" }}>{title}</h5>
+            <h5
+              className="text-white fw-semibold mb-2"
+              style={{ fontSize: "1.05rem" }}
+            >
+              {title}
+            </h5>
             <div className="d-flex align-items-center text-secondary">
               <i className="bi bi-clock me-2" />
               <span>{timeLabel}</span>
@@ -247,9 +431,13 @@ export default function Home() {
               fontSize: "0.85rem",
               fontWeight: 600,
               border: `1px solid ${borderColor}`,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.35rem",
             }}
           >
             {badgeText}
+            <i className="bi bi-arrow-right-short" />
           </span>
         </div>
       </div>
@@ -302,7 +490,7 @@ export default function Home() {
     },
     {
       title: "Mindful Breathing Break",
-      timeLabel: "Today at 3:30 PM",
+      timeLabel: "Tuesday at 3:30 PM",
       location: "Polyterrasse, Quiet Corner",
       attendees: ["Ava"],
       image: "/images/events/mindful.jpg",
@@ -339,7 +527,7 @@ export default function Home() {
     },
     {
       title: "Quiet Library Study",
-      timeLabel: "Tonight at 7:00 PM",
+      timeLabel: "Wednesday at 7:00 PM",
       location: "ETH Main Library",
       attendees: ["Ava"],
       image: "/images/events/quiet-study.jpg",
@@ -363,7 +551,7 @@ export default function Home() {
     },
     {
       title: "Sunset Bench Hangout",
-      timeLabel: "Tonight at 7:30 PM",
+      timeLabel: "Tuesday at 7:30 PM",
       location: "Polyterrasse Viewpoint",
       attendees: ["Ethan", "Ava"],
       image: "/images/events/sunset.jpg",
@@ -377,7 +565,7 @@ export default function Home() {
       title: "Coffee Chat",
       timeLabel: "Tuesday at 10:00 AM",
       location: "Einstein Cafe, ETH HG",
-      attendees: ["Chloe", "Lucas"],
+      attendees: ["Elynn Lee","Chloe", "Lucas"],
       image: "/images/events/coffee.jpg",
       description: "A casual coffee meetup at Einstein Cafe to catch up and chat about classes, life, and everything in between. We'll grab our favorite drinks and find a cozy spot to relax. Perfect for a mid-morning social break.",
     },
@@ -436,7 +624,7 @@ export default function Home() {
   const mediumHighEvents = [
     {
       title: "Group Study Sprint",
-      timeLabel: "Today at 4:00 PM",
+      timeLabel: "Thursday at 4:00 PM",
       location: "ETH HG E33",
       attendees: ["Ava", "Isabella", "Mateo", "Chloe"],
       image: "/images/events/study.jpg",
@@ -444,7 +632,7 @@ export default function Home() {
     },
     {
       title: "Evening Jog Crew",
-      timeLabel: "Tonight at 8:00 PM",
+      timeLabel: "Friday at 8:00 PM",
       location: "ETH Hönggerberg",
       attendees: ["Liam", "Ethan", "Daniel"],
       image: "/images/events/run.jpg",
@@ -460,7 +648,7 @@ export default function Home() {
     },
     {
       title: "Big Study Group",
-      timeLabel: "Tomorrow at 2:00 PM",
+      timeLabel: "Monday at 2:00 PM",
       location: "HG D1.2",
       attendees: ["Ava", "Isabella", "Mateo", "Chloe"],
       image: "/images/events/study.png",
@@ -588,27 +776,37 @@ export default function Home() {
   // Apply sorting to events - use useMemo to recalculate when sortType or eventsForUser changes
   const sortedEvents = useMemo(() => {
     if (!sortType) return eventsForUser;
-    
+
     let sorted = [...eventsForUser];
-    
-    if (sortType === 'date') {
+
+    if (sortType === "date") {
       // Sort by date: earlier events first
       const today = new Date();
       const dayOfWeek = today.getDay();
-      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-      
+      const dayNames = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ];
+
       sorted.sort((a, b) => {
         const getEventDate = (event) => {
           const lower = event.timeLabel.toLowerCase();
-          const timeMatch = event.timeLabel.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+          const timeMatch = event.timeLabel.match(
+            /(\d{1,2}):(\d{2})\s*(AM|PM)/i
+          );
           let hours = timeMatch ? parseInt(timeMatch[1]) : 12;
-          const ampm = timeMatch ? timeMatch[3].toUpperCase() : 'PM';
-          if (ampm === 'PM' && hours !== 12) hours += 12;
-          if (ampm === 'AM' && hours === 12) hours = 0;
-          
-          if (lower.includes('today') || lower.includes('tonight')) {
+          const ampm = timeMatch ? timeMatch[3].toUpperCase() : "PM";
+          if (ampm === "PM" && hours !== 12) hours += 12;
+          if (ampm === "AM" && hours === 12) hours = 0;
+
+          if (lower.includes("today") || lower.includes("tonight")) {
             return dayOfWeek * 100 + hours;
-          } else if (lower.includes('tomorrow')) {
+          } else if (lower.includes("tomorrow")) {
             return ((dayOfWeek + 1) % 7) * 100 + hours;
           } else {
             for (let i = 0; i < dayNames.length; i++) {
@@ -622,38 +820,29 @@ export default function Home() {
           }
           return 9999; // Unknown dates go last
         };
-        
+
         return getEventDate(a) - getEventDate(b);
       });
-    } else if (sortType === 'commonFriends') {
+    } else if (sortType === "commonFriends") {
       // Sort by number of common friends: more friends first
       sorted.sort((a, b) => {
         const getCommonFriendsCount = (event) => {
           if (!event.attendees) return 0;
-          return event.attendees.filter(attendee => 
+          return event.attendees.filter((attendee) =>
             userFriends.includes(attendee)
           ).length;
         };
-        
+
         return getCommonFriendsCount(b) - getCommonFriendsCount(a);
       });
-    } else if (sortType === 'distance') {
-      // Distance sort: closest first (placeholder - no actual sorting yet)
-      // Keep original order for now
+    } else if (sortType === "distance") {
+      // Distance sort: placeholder – keep original order
     }
-    
+
     return sorted;
   }, [sortType, eventsForUser, userFriends]);
 
-  // Load enrolled events
-  useEffect(() => {
-    const loadEvents = () => {
-      setEnrolledEvents(getEnrolledEvents());
-    };
-    loadEvents();
-    window.addEventListener('eventsUpdated', loadEvents);
-    return () => window.removeEventListener('eventsUpdated', loadEvents);
-  }, []);
+  const visibleEvents = showAll ? sortedEvents : sortedEvents.slice(0, 3);
 
   // Check if an event is already joined
   const isEventJoined = (event) => {
@@ -662,7 +851,7 @@ export default function Home() {
     );
   };
 
-  // Handle joining an event
+  // Handle joining an event (also default → flexible in priority map)
   const handleOpenEventModal = (event) => {
     setSelectedEvent(event);
     setIsEventModalOpen(true);
@@ -673,11 +862,20 @@ export default function Home() {
     setSelectedEvent(null);
   };
 
-  // this is where your original "join" logic lives now
   const handleSignUp = () => {
     if (!selectedEvent) return;
     addEnrolledEvent(selectedEvent);
+
+    const key = makeEventKey(selectedEvent.title, selectedEvent.timeLabel);
+    setEventPriorityMap((prev) => {
+      if (prev[key]) return prev; // keep existing choice
+      const next = { ...prev, [key]: "flexible" };
+      savePriorityMap(next);
+      return next;
+    });
+
     window.dispatchEvent(new Event("eventsUpdated"));
+    window.dispatchEvent(new Event("eventPriorityUpdated"));
     handleCloseEventModal();
   };
 
@@ -737,8 +935,6 @@ export default function Home() {
     window.dispatchEvent(new Event("conversationsUpdated"));
   };
 
-  const visibleEvents = showAll ? sortedEvents : sortedEvents.slice(0, 3);
-
   return (
     <div>
       <h3
@@ -780,7 +976,7 @@ export default function Home() {
     {/* Right: round calendar button linking to Calendar page */}
     <button
       type="button"
-      className="btn btn-outline-secondary d-flex align-items-center justify-content-center"
+      className="btn btn-outline-secondary d-flex align-items-center justify-content-center icon-pop"
       style={{
         width: "36px",
         height: "36px",
@@ -789,52 +985,106 @@ export default function Home() {
         borderColor: "rgba(148,163,184,0.5)",
         color: "#e5e7eb",
         backgroundColor: "transparent",
+        position: "relative",
+        overflow: "hidden",
+        transition: "all 0.3s ease",
       }}
-      onClick={() => navigate("/home/calendar")}  // adjust path if needed
+      onClick={() => navigate("/home/calendar")}
       title="Open calendar"
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = "rgba(148,163,184,0.9)";
+        e.currentTarget.style.boxShadow = "0 0 12px rgba(148,163,184,0.4), inset 0 0 12px rgba(148,163,184,0.1)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = "rgba(148,163,184,0.5)";
+        e.currentTarget.style.boxShadow = "none";
+      }}
     >
-      <i className="bi bi-calendar4-week" style={{ fontSize: "18px" }}></i>
+      {/* Shine overlay */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: "-100%",
+          width: "100%",
+          height: "100%",
+          background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",
+          pointerEvents: "none",
+        }}
+        className="calendar-shine"
+      />
+      <i className="bi bi-calendar4-week" style={{ fontSize: "18px", position: "relative", zIndex: 1 }} />
     </button>
   </div>
 
-  {/* KEEP THESE (Priority) */}
-  <div className="mb-3">
-    <div className="d-flex align-items-center mb-2">
-      <i
-        className="bi bi-exclamation-circle-fill text-danger me-2"
-        style={{ fontSize: "18px" }}
-      />
-      <span className="text-white fw-semibold">Keep These</span>
-    </div>
-    {priorityItems.map((item, idx) => (
-      <ScheduleCard
-        key={`p-${idx}`}
-        title={item.title}
-        timeLabel={item.timeLabel}
-        variant="priority"
-      />
-    ))}
-  </div>
+  {/* DEADLINES */}
+    <div className="mb-3">
+      <div className="d-flex align-items-center mb-2">
+        <i
+          className="bi bi-flag-fill text-warning me-2"
+          style={{ fontSize: "18px" }}
+        />
+        <span className="text-white fw-semibold">Deadlines</span>
+      </div>
 
-  {/* FLEXIBLE */}
-  <div>
-    <div className="d-flex align-items-center mb-2">
-      <i
-        className="bi bi-check-circle-fill text-success me-2"
-        style={{ fontSize: "18px" }}
-      />
-      <span className="text-white fw-semibold">Flexible</span>
+      {upcomingDeadlines.length === 0 && (
+        <div className="text-secondary mb-2" style={{ opacity: 0.7 }}>
+          No deadlines set.
+        </div>
+      )}
+
+      {upcomingDeadlines.map((item, idx) => (
+        <ScheduleCard
+          key={`d-${idx}`}
+          title={item.title}
+          timeLabel={item.timeLabel}
+          variant="deadline"
+          onClick={() => navigate("/home/calendar")}
+        />
+      ))}
     </div>
-    {flexibleItems.map((item, idx) => (
-      <ScheduleCard
-        key={`f-${idx}`}
-        title={item.title}
-        timeLabel={item.timeLabel}
-        variant="flexible"
-      />
-    ))}
-  </div>
-</div>
+
+   {/* KEEP THESE (Priority) */}
+        <div className="mb-3">
+          <div className="d-flex align-items-center mb-2">
+            <i
+              className="bi bi-exclamation-circle-fill text-danger me-2"
+              style={{ fontSize: "18px" }}
+            />
+            <span className="text-white fw-semibold">Priority</span>
+          </div>
+          {priorityUpcoming.map((item, idx) => (
+            <ScheduleCard
+              key={`p-${idx}`}
+              title={item.title}
+              timeLabel={item.timeLabel}
+              variant="priority"
+              onClick={() => navigate("/home/calendar")}
+            />
+          ))}
+        </div>
+
+        {/* FLEXIBLE */}
+        <div>
+          <div className="d-flex align-items-center mb-2">
+            <i
+              className="bi bi-check-circle-fill text-success me-2"
+              style={{ fontSize: "18px" }}
+            />
+            <span className="text-white fw-semibold">Flexible</span>
+          </div>
+          {flexibleUpcoming.map((item, idx) => (
+            <ScheduleCard
+              key={`f-${idx}`}
+              title={item.title}
+              timeLabel={item.timeLabel}
+              variant="flexible"
+              onClick={() => navigate("/home/calendar")}
+            />
+          ))}
+        </div>
+      </div>
+
       <hr className="border-secondary my-3" />
 
       <div id="events-section" className="d-flex align-items-center justify-content-between mb-3 mt-4">
