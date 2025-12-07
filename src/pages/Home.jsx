@@ -33,9 +33,9 @@ const computeSuitabilityScore = (event, energyBucket, userFriends) => {
   const energyScore = 1; // perfect match in current design
 
   // 2) Friends attending: normalize by capping at 3
-  const friendCount = (event.attendees || []).filter((name) =>
-    userFriends.includes(name)
-  ).length;
+  const friendCount = (event.attendees || []).filter((name) => {
+  return userFriends.some((f) => f.startsWith(name + " "));
+}).length;
   const friendScore = Math.min(friendCount, 3) / 3; // 0..1
 
   // 3) Rating: assumed 1..5
