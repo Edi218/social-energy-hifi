@@ -9,6 +9,55 @@ const PRIORITY_STORAGE_KEY = "se_event_priority_map";
 
 const DEADLINE_STORAGE_KEY = "se_deadline_events";
 
+// Weights for the objective (tweak as you like)
+const SCORE_WEIGHTS = {
+  energy: 0.4,
+  friends: 0.3,
+  rating: 0.2,
+  distance: 0.1,
+  novelty: 0.1,
+};
+
+// Turn distanceCategory into a 0–1 score
+const distanceScoreFromCategory = (cat) => {
+  if (cat === "campus") return 1;      // best
+  if (cat === "city") return 0.6;
+  if (cat === "far") return 0.2;
+  return 0.5; // unknown
+};
+
+// Main scoring function – this is your s_i
+const computeSuitabilityScore = (event, energyBucket, userFriends) => {
+  // 1) Energy match: since events are pre-filtered by bucket, give a strong base score.
+  // (If you later mix buckets, you can down-weight mismatches here.)
+  const energyScore = 1; // perfect match in current design
+
+  // 2) Friends attending: normalize by capping at 3
+  const friendCount = (event.attendees || []).filter((name) =>
+    userFriends.includes(name)
+  ).length;
+  const friendScore = Math.min(friendCount, 3) / 3; // 0..1
+
+  // 3) Rating: assumed 1..5
+  const ratingRaw = event.rating ?? 4; // default
+  const ratingScore = Math.max(0, Math.min(ratingRaw, 5)) / 5;
+
+  // 4) Distance (from the fake category)
+  const distanceScore = distanceScoreFromCategory(event.distanceCategory);
+
+  // 5) Novelty: new events get a boost
+  const noveltyScore = event.isNew ? 1 : 0;
+
+  // Weighted sum – this mirrors your optimization objective
+  return (
+    SCORE_WEIGHTS.energy * energyScore +
+    SCORE_WEIGHTS.friends * friendScore +
+    SCORE_WEIGHTS.rating * ratingScore +
+    SCORE_WEIGHTS.distance * distanceScore +
+    SCORE_WEIGHTS.novelty * noveltyScore
+  );
+};
+
 const loadDeadlines = () => {
   if (typeof window === "undefined") return [];
   try {
@@ -450,7 +499,7 @@ const upcomingDeadlines = useMemo(() => {
 
     // ----- EVENTS FOR EACH BUCKET -----
 
-  // ⭐ VERY LOW SOCIAL ENERGY
+    // ⭐ VERY LOW SOCIAL ENERGY
   const veryLowEvents = [
     {
       title: "Quiet Library Study",
@@ -461,16 +510,22 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "A peaceful study session in the quiet section of the main library. Perfect for when you need to focus without distractions. We'll work on our own projects but share the calm, productive energy.",
       tags: ["study", "quiet", "small-setting"],
+      rating: 4.7,
+      isNew: false,
+      distanceCategory: "campus",
     },
     {
       title: "Short Walk & Talk",
       timeLabel: "Tuesday at 5:00 PM",
       location: "Polyterrasse",
       attendees: ["Sophia"],
-      image: "/images/events/polyterasse.jpg",
+      image: "/images/events/polyterrasse.jpg",
       description:
         "A gentle stroll around Polyterrasse to get some fresh air and light conversation. No pressure, just a relaxed way to connect and recharge. We'll keep it short and sweet.",
       tags: ["walk", "low-key", "small-setting"],
+      rating: 4.3,
+      isNew: true,
+      distanceCategory: "campus",
     },
     {
       title: "Chill Tea Break",
@@ -481,6 +536,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "A cozy tea break in the alumni lounge to unwind and chat casually. Bring your favorite mug and enjoy some quiet conversation. It's all about low-key vibes and good company.",
       tags: ["cafe", "calm", "indoor"],
+      rating: 4.5,
+      isNew: false,
+      distanceCategory: "campus",
     },
     {
       title: "Solo Reading Corner",
@@ -491,6 +549,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "A super quiet reading session tucked away in a cozy corner of the library. We'll each bring our own book or article and just read in silence. Perfect if you want to be around someone without needing to talk much.",
       tags: ["reading", "solo", "quiet"],
+      rating: 4.8,
+      isNew: true,
+      distanceCategory: "campus",
     },
     {
       title: "Late-Afternoon Headphone Study",
@@ -501,6 +562,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "A calm study meetup where we both bring headphones and work on our laptops. No obligation to chat, just a gentle sense of company while we focus on our own tasks.",
       tags: ["study", "headphones", "low-key"],
+      rating: 4.4,
+      isNew: false,
+      distanceCategory: "campus",
     },
     {
       title: "Mindful Breathing Break",
@@ -511,6 +575,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "A short, low-key break to sit, breathe, and decompress together. We'll find a quiet spot, enjoy the view, and do a few minutes of calm breathing—no intense conversation, just a soft reset for the day.",
       tags: ["mindfulness", "outdoor", "calm"],
+      rating: 4.6,
+      isNew: true,
+      distanceCategory: "campus",
     },
   ];
 
@@ -525,6 +592,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "A relaxed evening of board games in a cozy apartment setting. We'll play some chill games like Catan or Codenames while enjoying snacks and good conversation. Perfect for a low-energy social night.",
       tags: ["games", "indoor", "small-group"],
+      rating: 4.7,
+      isNew: true,
+      distanceCategory: "city",
     },
     {
       title: "Calm Study Meetup",
@@ -535,6 +605,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "A peaceful study session in the silent room where we can work together quietly. We'll keep each other company while respecting the quiet atmosphere. Great for staying motivated without the pressure of conversation.",
       tags: ["study", "quiet", "small-group"],
+      rating: 4.5,
+      isNew: false,
+      distanceCategory: "campus",
     },
     {
       title: "Evening Stroll",
@@ -545,6 +618,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "A gentle evening walk through Zürich Central to enjoy the city lights and fresh air. We'll take it slow and chat about our week. It's a perfect way to unwind and connect without any big commitments.",
       tags: ["outdoor", "walk", "low-key"],
+      rating: 4.4,
+      isNew: true,
+      distanceCategory: "city",
     },
     {
       title: "Quiet Library Study",
@@ -555,6 +631,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "A focused study session in the main library's quiet section. We'll work on our assignments together but independently, sharing the productive atmosphere. Ideal for when you need to get work done in a calm environment.",
       tags: ["study", "quiet", "focus"],
+      rating: 4.6,
+      isNew: false,
+      distanceCategory: "campus",
     },
     {
       title: "Gentle Yoga & Stretch",
@@ -565,6 +644,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "A relaxed morning session of light stretching and beginner-friendly yoga. We'll move slowly, chat a bit between poses, and just enjoy a soft start to the day.",
       tags: ["fitness", "yoga", "calm"],
+      rating: 4.5,
+      isNew: true,
+      distanceCategory: "campus",
     },
     {
       title: "Quiet Café Work Session",
@@ -575,6 +657,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "We'll grab a drink, find a quiet table, and work on our laptops. Low-pressure conversation, mostly focused on getting things done with a comforting background buzz.",
       tags: ["cafe", "study", "low-key"],
+      rating: 4.3,
+      isNew: false,
+      distanceCategory: "campus",
     },
     {
       title: "Sunset Bench Hangout",
@@ -585,6 +670,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "A calm evening sitting on a bench, watching the sunset over Zürich. We'll talk if we feel like it or just enjoy the view together. No plans, no expectations—just a soft end to the day.",
       tags: ["outdoor", "sunset", "small-setting"],
+      rating: 4.6,
+      isNew: true,
+      distanceCategory: "campus",
     },
   ];
 
@@ -599,6 +687,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "A casual coffee meetup at Einstein Cafe to catch up and chat about classes, life, and everything in between. We'll grab our favorite drinks and find a cozy spot to relax. Perfect for a mid-morning social break.",
       tags: ["cafe", "social", "small-group"],
+      rating: 4.8,
+      isNew: true,
+      distanceCategory: "campus",
     },
     {
       title: "Lunch with Friends",
@@ -609,6 +700,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "A relaxed lunch at the Polyterrasse Mensa where we'll enjoy good food and great conversation. We'll discuss our week, share study tips, and just enjoy each other's company. It's a nice way to break up the day.",
       tags: ["food", "social", "medium-group"],
+      rating: 4.6,
+      isNew: false,
+      distanceCategory: "campus",
     },
     {
       title: "Study Together",
@@ -619,6 +713,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "A collaborative study session where we'll work on our assignments together and help each other out when needed. We'll take breaks to chat and keep the energy positive. Great for staying motivated and getting things done.",
       tags: ["study", "group-work", "collaborative"],
+      rating: 4.7,
+      isNew: false,
+      distanceCategory: "campus",
     },
     {
       title: "Lunch Crew",
@@ -629,6 +726,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "Our regular Thursday lunch meetup at the Mensa! We'll grab food together and catch up on the week. It's become a nice tradition that helps us stay connected and share what's going on in our lives.",
       tags: ["food", "recurring", "social"],
+      rating: 4.5,
+      isNew: false,
+      distanceCategory: "campus",
     },
     {
       title: "Problem-Solving Session",
@@ -639,6 +739,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "A focused but friendly meetup to work through problem sets together. We'll discuss tricky questions, share approaches, and keep things supportive and collaborative.",
       tags: ["study", "problem-solving", "structured"],
+      rating: 4.6,
+      isNew: true,
+      distanceCategory: "campus",
     },
     {
       title: "Mensa Dessert Break",
@@ -649,6 +752,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "A short afternoon meetup just for coffee, dessert, and a mid-day reset. We'll chat about how the week is going and enjoy something sweet before heading back to work.",
       tags: ["food", "short-break", "social"],
+      rating: 4.4,
+      isNew: true,
+      distanceCategory: "campus",
     },
     {
       title: "Campus Photo Walk",
@@ -659,6 +765,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "A relaxed walk around campus to take photos of cool spots and views. We'll explore, chat, and maybe grab a drink afterward—social, but still easygoing and flexible.",
       tags: ["outdoor", "walk", "creative"],
+      rating: 4.5,
+      isNew: true,
+      distanceCategory: "campus",
     },
   ];
 
@@ -673,6 +782,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "An energetic study sprint where we'll tackle our assignments together and push each other to stay focused. We'll work in focused blocks with short breaks to chat and recharge. Perfect for when you're feeling motivated and want to get a lot done.",
       tags: ["study", "group-work", "high-energy"],
+      rating: 4.7,
+      isNew: false,
+      distanceCategory: "campus",
     },
     {
       title: "Evening Jog Crew",
@@ -683,6 +795,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "A fun evening jog around Hönggerberg campus to get some exercise and fresh air. We'll run at a comfortable pace and chat along the way. It's a great way to stay active and socialize at the same time.",
       tags: ["sports", "fitness", "outdoor", "running"],
+      rating: 4.5,
+      isNew: true,
+      distanceCategory: "campus",
     },
     {
       title: "Casual Dinner Out",
@@ -693,6 +808,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "A relaxed dinner at Nooch Zurich to enjoy some delicious Asian cuisine and good conversation. We'll try different dishes, share stories, and just have a great time together. Perfect for a Saturday night out.",
       tags: ["food", "social", "evening"],
+      rating: 4.6,
+      isNew: true,
+      distanceCategory: "city",
     },
     {
       title: "Big Study Group",
@@ -703,6 +821,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "A productive study session with the whole group where we'll work on assignments and help each other with difficult problems. We'll take regular breaks to chat and keep the atmosphere positive and motivating. Great for tackling challenging material together.",
       tags: ["study", "collaborative"],
+      rating: 4.6,
+      isNew: false,
+      distanceCategory: "campus",
     },
     {
       title: "Lunch Crew",
@@ -713,6 +834,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "A lively lunch meetup at the Mensa where we'll enjoy good food and catch up on everything. We'll share what we're working on, discuss upcoming projects, and just enjoy each other's company. Always a highlight of the week!",
       tags: ["food", "social", "recurring"],
+      rating: 4.5,
+      isNew: false,
+      distanceCategory: "campus",
     },
     {
       title: "Brainstorm & Whiteboard Jam",
@@ -723,6 +847,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "An energetic session where we grab a whiteboard and brainstorm ideas—projects, exams, or random side ideas. Expect lively discussion, quick sketches, and lots of shared thinking.",
       tags: ["brainstorming", "creative", "group-work"],
+      rating: 4.7,
+      isNew: true,
+      distanceCategory: "campus",
     },
     {
       title: "City Exploration Walk",
@@ -733,6 +860,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "A longer walk through Zürich’s old town, with time to explore hidden alleys, grab snacks, and talk. It's social and active, but still relaxed enough to go with the flow.",
       tags: ["exploration", "walk", "social"],
+      rating: 4.6,
+      isNew: true,
+      distanceCategory: "city",
     },
     {
       title: "Chill Games at CAB",
@@ -743,6 +873,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "An evening of light card and party games in a common room. Expect laughs, friendly competition, and breaks to chat—lively, but not overwhelming.",
       tags: ["games", "indoor", "social"],
+      rating: 4.4,
+      isNew: false,
+      distanceCategory: "campus",
     },
   ];
 
@@ -757,6 +890,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "A fun Friday night out at BQM Bar to celebrate the end of the week! We'll grab drinks, play some games, and enjoy the lively atmosphere. It's the perfect way to unwind and have a great time with friends. Let's make it a memorable night!",
       tags: ["bar", "party", "crowded"],
+      rating: 4.6,
+      isNew: true,
+      distanceCategory: "city",
     },
     {
       title: "ASVZ Group Workout",
@@ -767,6 +903,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "An energetic group workout session at ASVZ Polyterrasse! We'll push each other through a fun circuit training or weight session. It's all about staying active, having fun, and motivating each other. Perfect for when you're feeling pumped and ready to move!",
       tags: ["sports", "fitness", "high-energy"],
+      rating: 4.7,
+      isNew: false,
+      distanceCategory: "campus",
     },
     {
       title: "Volleyball Free Play",
@@ -777,6 +916,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "A competitive and fun volleyball session at ASVZ Höngg! We'll play some friendly matches, work on our skills, and enjoy the active energy. Whether you're experienced or just want to try it out, everyone's welcome. Let's get moving and have a blast!",
       tags: ["sports", "team", "high-energy"],
+      rating: 4.6,
+      isNew: true,
+      distanceCategory: "campus",
     },
     {
       title: "Big Study Group",
@@ -787,6 +929,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "An energetic and collaborative study session with the whole crew! We'll tackle challenging problems together, share knowledge, and keep the momentum high. With regular breaks for laughs and snacks, it's both productive and fun. Perfect for when you're feeling motivated and ready to conquer your work!",
       tags: ["study", "high-energy", "collaborative"],
+      rating: 4.7,
+      isNew: false,
+      distanceCategory: "campus",
     },
     {
       title: "Student Party Night",
@@ -797,6 +942,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "A loud, high-energy student party with music, dancing, and a big crowd. We'll move between groups, meet new people, and enjoy the full weekend party vibe.",
       tags: ["party", "music", "crowded"],
+      rating: 4.5,
+      isNew: true,
+      distanceCategory: "city",
     },
     {
       title: "Intense ASVZ HIIT Session",
@@ -807,6 +955,9 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "A fast-paced HIIT workout where we really push ourselves. Lots of energy, encouragement, and endorphins—perfect if you're in the mood to sweat and feel pumped afterward.",
       tags: ["fitness", "hiit", "group"],
+      rating: 4.6,
+      isNew: false,
+      distanceCategory: "campus",
     },
     {
       title: "Bowling & Arcade Night",
@@ -817,8 +968,12 @@ const upcomingDeadlines = useMemo(() => {
       description:
         "A lively night of bowling, arcade games, and friendly trash talk. We'll cheer, compete, and laugh a lot—ideal for when you want something fun and energetic with the group.",
       tags: ["games", "group", "high-energy"],
+      rating: 4.7,
+      isNew: true,
+      distanceCategory: "city",
     },
   ];
+
 
 
   // SELECT EVENTS BASED ON BUCKET
@@ -846,72 +1001,82 @@ const upcomingDeadlines = useMemo(() => {
   
   // Apply sorting to events - use useMemo to recalculate when sortType or eventsForUser changes
   const sortedEvents = useMemo(() => {
-    if (!sortType) return eventsForUser;
+  // Start from all candidate events
+  let sorted = [...eventsForUser];
 
-    let sorted = [...eventsForUser];
+  // 1) Always apply the optimization score first (your “IP” ordering)
+  sorted.sort(
+    (a, b) =>
+      computeSuitabilityScore(b, energyBucket, userFriends) -
+      computeSuitabilityScore(a, energyBucket, userFriends)
+  );
 
-    if (sortType === "date") {
-      // Sort by date: earlier events first
-      const today = new Date();
-      const dayOfWeek = today.getDay();
-      const dayNames = [
-        "Sunday",
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-      ];
+  // 2) If no manual sort selected → we're done
+  if (!sortType) return sorted;
 
-      sorted.sort((a, b) => {
-        const getEventDate = (event) => {
-          const lower = event.timeLabel.toLowerCase();
-          const timeMatch = event.timeLabel.match(
-            /(\d{1,2}):(\d{2})\s*(AM|PM)/i
-          );
-          let hours = timeMatch ? parseInt(timeMatch[1]) : 12;
-          const ampm = timeMatch ? timeMatch[3].toUpperCase() : "PM";
-          if (ampm === "PM" && hours !== 12) hours += 12;
-          if (ampm === "AM" && hours === 12) hours = 0;
+  // 3) Otherwise, apply the user-chosen sort on top
+  if (sortType === "date") {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const dayNames = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
 
-          if (lower.includes("today") || lower.includes("tonight")) {
-            return dayOfWeek * 100 + hours;
-          } else if (lower.includes("tomorrow")) {
-            return ((dayOfWeek + 1) % 7) * 100 + hours;
-          } else {
-            for (let i = 0; i < dayNames.length; i++) {
-              if (lower.includes(dayNames[i].toLowerCase())) {
-                // Adjust day index to be relative to today
-                let dayIndex = i;
-                if (dayIndex < dayOfWeek) dayIndex += 7; // Next week
-                return dayIndex * 100 + hours;
-              }
+    sorted.sort((a, b) => {
+      const getEventDateKey = (event) => {
+        const lower = event.timeLabel.toLowerCase();
+        const timeMatch = event.timeLabel.match(
+          /(\d{1,2}):(\d{2})\s*(AM|PM)/i
+        );
+        let hours = timeMatch ? parseInt(timeMatch[1], 10) : 12;
+        const ampm = timeMatch ? timeMatch[3].toUpperCase() : "PM";
+        if (ampm === "PM" && hours !== 12) hours += 12;
+        if (ampm === "AM" && hours === 12) hours = 0;
+
+        if (lower.includes("today") || lower.includes("tonight")) {
+          return dayOfWeek * 100 + hours;
+        } else if (lower.includes("tomorrow")) {
+          return ((dayOfWeek + 1) % 7) * 100 + hours;
+        } else {
+          for (let i = 0; i < dayNames.length; i++) {
+            if (lower.includes(dayNames[i].toLowerCase())) {
+              let dayIndex = i;
+              if (dayIndex < dayOfWeek) dayIndex += 7; // next week
+              return dayIndex * 100 + hours;
             }
           }
-          return 9999; // Unknown dates go last
-        };
+        }
+        return 9999; // unknown → bottom
+      };
 
-        return getEventDate(a) - getEventDate(b);
-      });
-    } else if (sortType === "commonFriends") {
-      // Sort by number of common friends: more friends first
-      sorted.sort((a, b) => {
-        const getCommonFriendsCount = (event) => {
-          if (!event.attendees) return 0;
-          return event.attendees.filter((attendee) =>
-            userFriends.includes(attendee)
-          ).length;
-        };
+      return getEventDateKey(a) - getEventDateKey(b);
+    });
+  } else if (sortType === "commonFriends") {
+    sorted.sort((a, b) => {
+      const countFriends = (event) =>
+        (event.attendees || []).filter((name) =>
+          userFriends.includes(name)
+        ).length;
+      return countFriends(b) - countFriends(a);
+    });
+  } else if (sortType === "distance") {
+    // Simple placeholder: campus > city > far
+    const order = { campus: 0, city: 1, far: 2 };
+    sorted.sort((a, b) => {
+      const da = order[a.distanceCategory] ?? 1;
+      const db = order[b.distanceCategory] ?? 1;
+      return da - db;
+    });
+  }
 
-        return getCommonFriendsCount(b) - getCommonFriendsCount(a);
-      });
-    } else if (sortType === "distance") {
-      // Distance sort: placeholder – keep original order
-    }
-
-    return sorted;
-  }, [sortType, eventsForUser, userFriends]);
+  return sorted;
+}, [sortType, eventsForUser, energyBucket, userFriends]);
 
   const visibleEvents = showAll ? sortedEvents : sortedEvents.slice(0, 3);
 
