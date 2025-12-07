@@ -79,6 +79,10 @@ export default function Home() {
 
   const [showNudge, setShowNudge] = useState(false);
 
+  const [eventsMuted, setEventsMuted] = useState(false);
+
+  const [upcomingMuted, setUpcomingMuted] = useState(false);
+
   // priority / flexible for all events (dummy + enrolled + own)
   const [eventPriorityMap, setEventPriorityMap] = useState(() =>
     loadPriorityMap()
@@ -444,7 +448,7 @@ const upcomingDeadlines = useMemo(() => {
     );
   };
 
-  // ----- EVENTS FOR EACH BUCKET -----
+    // ----- EVENTS FOR EACH BUCKET -----
 
   // ⭐ VERY LOW SOCIAL ENERGY
   const veryLowEvents = [
@@ -454,7 +458,9 @@ const upcomingDeadlines = useMemo(() => {
       location: "ETH Main Library",
       attendees: ["Ava"],
       image: "/images/events/quiet-study.jpg",
-      description: "A peaceful study session in the quiet section of the main library. Perfect for when you need to focus without distractions. We'll work on our own projects but share the calm, productive energy.",
+      description:
+        "A peaceful study session in the quiet section of the main library. Perfect for when you need to focus without distractions. We'll work on our own projects but share the calm, productive energy.",
+      tags: ["study", "quiet", "small-setting"],
     },
     {
       title: "Short Walk & Talk",
@@ -462,7 +468,9 @@ const upcomingDeadlines = useMemo(() => {
       location: "Polyterrasse",
       attendees: ["Sophia"],
       image: "/images/events/polyterasse.jpg",
-      description: "A gentle stroll around Polyterrasse to get some fresh air and light conversation. No pressure, just a relaxed way to connect and recharge. We'll keep it short and sweet.",
+      description:
+        "A gentle stroll around Polyterrasse to get some fresh air and light conversation. No pressure, just a relaxed way to connect and recharge. We'll keep it short and sweet.",
+      tags: ["walk", "low-key", "small-setting"],
     },
     {
       title: "Chill Tea Break",
@@ -470,7 +478,9 @@ const upcomingDeadlines = useMemo(() => {
       location: "ETH Alumni Lounge",
       attendees: ["Lucas", "Carlo"],
       image: "/images/events/tea.jpg",
-      description: "A cozy tea break in the alumni lounge to unwind and chat casually. Bring your favorite mug and enjoy some quiet conversation. It's all about low-key vibes and good company.",
+      description:
+        "A cozy tea break in the alumni lounge to unwind and chat casually. Bring your favorite mug and enjoy some quiet conversation. It's all about low-key vibes and good company.",
+      tags: ["cafe", "calm", "indoor"],
     },
     {
       title: "Solo Reading Corner",
@@ -478,15 +488,19 @@ const upcomingDeadlines = useMemo(() => {
       location: "ETH Main Library, Reading Nook",
       attendees: ["Chloe"],
       image: "/images/events/reading.jpg",
-      description: "A super quiet reading session tucked away in a cozy corner of the library. We'll each bring our own book or article and just read in silence. Perfect if you want to be around someone without needing to talk much.",
+      description:
+        "A super quiet reading session tucked away in a cozy corner of the library. We'll each bring our own book or article and just read in silence. Perfect if you want to be around someone without needing to talk much.",
+      tags: ["reading", "solo", "quiet"],
     },
     {
-     title: "Late-Afternoon Headphone Study",
+      title: "Late-Afternoon Headphone Study",
       timeLabel: "Sunday at 4:00 PM",
       location: "HG Lounge Area",
-     attendees: ["Mateo"],
+      attendees: ["Mateo"],
       image: "/images/events/headphones.avif",
-      description: "A calm study meetup where we both bring headphones and work on our laptops. No obligation to chat, just a gentle sense of company while we focus on our own tasks.",
+      description:
+        "A calm study meetup where we both bring headphones and work on our laptops. No obligation to chat, just a gentle sense of company while we focus on our own tasks.",
+      tags: ["study", "headphones", "low-key"],
     },
     {
       title: "Mindful Breathing Break",
@@ -494,9 +508,10 @@ const upcomingDeadlines = useMemo(() => {
       location: "Polyterrasse, Quiet Corner",
       attendees: ["Ava"],
       image: "/images/events/mindful.jpg",
-      description: "A short, low-key break to sit, breathe, and decompress together. We'll find a quiet spot, enjoy the view, and do a few minutes of calm breathing—no intense conversation, just a soft reset for the day.",
+      description:
+        "A short, low-key break to sit, breathe, and decompress together. We'll find a quiet spot, enjoy the view, and do a few minutes of calm breathing—no intense conversation, just a soft reset for the day.",
+      tags: ["mindfulness", "outdoor", "calm"],
     },
-
   ];
 
   // ⭐ LOW SOCIAL ENERGY
@@ -507,7 +522,9 @@ const upcomingDeadlines = useMemo(() => {
       location: "Friend's Flat, Kreis 6",
       attendees: ["Lucas", "Isabella"],
       image: "/images/events/boardgames.jpg",
-      description: "A relaxed evening of board games in a cozy apartment setting. We'll play some chill games like Catan or Codenames while enjoying snacks and good conversation. Perfect for a low-energy social night.",
+      description:
+        "A relaxed evening of board games in a cozy apartment setting. We'll play some chill games like Catan or Codenames while enjoying snacks and good conversation. Perfect for a low-energy social night.",
+      tags: ["games", "indoor", "small-group"],
     },
     {
       title: "Calm Study Meetup",
@@ -515,7 +532,9 @@ const upcomingDeadlines = useMemo(() => {
       location: "CAB Silent Room",
       attendees: ["Chloe"],
       image: "/images/events/study.png",
-      description: "A peaceful study session in the silent room where we can work together quietly. We'll keep each other company while respecting the quiet atmosphere. Great for staying motivated without the pressure of conversation.",
+      description:
+        "A peaceful study session in the silent room where we can work together quietly. We'll keep each other company while respecting the quiet atmosphere. Great for staying motivated without the pressure of conversation.",
+      tags: ["study", "quiet", "small-group"],
     },
     {
       title: "Evening Stroll",
@@ -523,7 +542,9 @@ const upcomingDeadlines = useMemo(() => {
       location: "Zürich Central",
       attendees: ["Ethan", "Ava"],
       image: "/images/events/walk-night.jpg",
-      description: "A gentle evening walk through Zürich Central to enjoy the city lights and fresh air. We'll take it slow and chat about our week. It's a perfect way to unwind and connect without any big commitments.",
+      description:
+        "A gentle evening walk through Zürich Central to enjoy the city lights and fresh air. We'll take it slow and chat about our week. It's a perfect way to unwind and connect without any big commitments.",
+      tags: ["outdoor", "walk", "low-key"],
     },
     {
       title: "Quiet Library Study",
@@ -531,7 +552,9 @@ const upcomingDeadlines = useMemo(() => {
       location: "ETH Main Library",
       attendees: ["Ava"],
       image: "/images/events/quiet-study.jpg",
-      description: "A focused study session in the main library's quiet section. We'll work on our assignments together but independently, sharing the productive atmosphere. Ideal for when you need to get work done in a calm environment.",
+      description:
+        "A focused study session in the main library's quiet section. We'll work on our assignments together but independently, sharing the productive atmosphere. Ideal for when you need to get work done in a calm environment.",
+      tags: ["study", "quiet", "focus"],
     },
     {
       title: "Gentle Yoga & Stretch",
@@ -539,7 +562,9 @@ const upcomingDeadlines = useMemo(() => {
       location: "ETH Hönggerberg Lawn",
       attendees: ["Sophia", "Chloe"],
       image: "/images/events/yoga.jpg",
-      description: "A relaxed morning session of light stretching and beginner-friendly yoga. We'll move slowly, chat a bit between poses, and just enjoy a soft start to the day.",
+      description:
+        "A relaxed morning session of light stretching and beginner-friendly yoga. We'll move slowly, chat a bit between poses, and just enjoy a soft start to the day.",
+      tags: ["fitness", "yoga", "calm"],
     },
     {
       title: "Quiet Café Work Session",
@@ -547,7 +572,9 @@ const upcomingDeadlines = useMemo(() => {
       location: "Café Galileo, ETH Zentrum",
       attendees: ["Lucas"],
       image: "/images/events/cafe-work.jpg",
-      description: "We'll grab a drink, find a quiet table, and work on our laptops. Low-pressure conversation, mostly focused on getting things done with a comforting background buzz.",
+      description:
+        "We'll grab a drink, find a quiet table, and work on our laptops. Low-pressure conversation, mostly focused on getting things done with a comforting background buzz.",
+      tags: ["cafe", "study", "low-key"],
     },
     {
       title: "Sunset Bench Hangout",
@@ -555,7 +582,9 @@ const upcomingDeadlines = useMemo(() => {
       location: "Polyterrasse Viewpoint",
       attendees: ["Ethan", "Ava"],
       image: "/images/events/sunset.jpg",
-      description: "A calm evening sitting on a bench, watching the sunset over Zürich. We'll talk if we feel like it or just enjoy the view together. No plans, no expectations—just a soft end to the day.",
+      description:
+        "A calm evening sitting on a bench, watching the sunset over Zürich. We'll talk if we feel like it or just enjoy the view together. No plans, no expectations—just a soft end to the day.",
+      tags: ["outdoor", "sunset", "small-setting"],
     },
   ];
 
@@ -565,9 +594,11 @@ const upcomingDeadlines = useMemo(() => {
       title: "Coffee Chat",
       timeLabel: "Tuesday at 10:00 AM",
       location: "Einstein Cafe, ETH HG",
-      attendees: ["Elynn Lee","Chloe", "Lucas"],
+      attendees: ["Elynn Lee", "Chloe", "Lucas"],
       image: "/images/events/coffee.jpg",
-      description: "A casual coffee meetup at Einstein Cafe to catch up and chat about classes, life, and everything in between. We'll grab our favorite drinks and find a cozy spot to relax. Perfect for a mid-morning social break.",
+      description:
+        "A casual coffee meetup at Einstein Cafe to catch up and chat about classes, life, and everything in between. We'll grab our favorite drinks and find a cozy spot to relax. Perfect for a mid-morning social break.",
+      tags: ["cafe", "social", "small-group"],
     },
     {
       title: "Lunch with Friends",
@@ -575,7 +606,9 @@ const upcomingDeadlines = useMemo(() => {
       location: "ETH Mensa Polyterrasse",
       attendees: ["Mateo", "Isabella"],
       image: "/images/events/mensa.jpg",
-      description: "A relaxed lunch at the Polyterrasse Mensa where we'll enjoy good food and great conversation. We'll discuss our week, share study tips, and just enjoy each other's company. It's a nice way to break up the day.",
+      description:
+        "A relaxed lunch at the Polyterrasse Mensa where we'll enjoy good food and great conversation. We'll discuss our week, share study tips, and just enjoy each other's company. It's a nice way to break up the day.",
+      tags: ["food", "social", "medium-group"],
     },
     {
       title: "Study Together",
@@ -583,7 +616,9 @@ const upcomingDeadlines = useMemo(() => {
       location: "ETH CAB Building",
       attendees: ["Ava", "Isabella", "Mateo", "Chloe"],
       image: "/images/events/study.png",
-      description: "A collaborative study session where we'll work on our assignments together and help each other out when needed. We'll take breaks to chat and keep the energy positive. Great for staying motivated and getting things done.",
+      description:
+        "A collaborative study session where we'll work on our assignments together and help each other out when needed. We'll take breaks to chat and keep the energy positive. Great for staying motivated and getting things done.",
+      tags: ["study", "group-work", "collaborative"],
     },
     {
       title: "Lunch Crew",
@@ -591,7 +626,9 @@ const upcomingDeadlines = useMemo(() => {
       location: "ETH Mensa Polyterrasse",
       attendees: ["Mateo", "Chloe", "Isabella"],
       image: "/images/events/mensa2.jpg",
-      description: "Our regular Thursday lunch meetup at the Mensa! We'll grab food together and catch up on the week. It's become a nice tradition that helps us stay connected and share what's going on in our lives.",
+      description:
+        "Our regular Thursday lunch meetup at the Mensa! We'll grab food together and catch up on the week. It's become a nice tradition that helps us stay connected and share what's going on in our lives.",
+      tags: ["food", "recurring", "social"],
     },
     {
       title: "Problem-Solving Session",
@@ -599,7 +636,9 @@ const upcomingDeadlines = useMemo(() => {
       location: "HG G Floor Study Area",
       attendees: ["Daniel", "Chloe", "Ava"],
       image: "/images/events/problem-solving.jpg",
-      description: "A focused but friendly meetup to work through problem sets together. We'll discuss tricky questions, share approaches, and keep things supportive and collaborative.",
+      description:
+        "A focused but friendly meetup to work through problem sets together. We'll discuss tricky questions, share approaches, and keep things supportive and collaborative.",
+      tags: ["study", "problem-solving", "structured"],
     },
     {
       title: "Mensa Dessert Break",
@@ -607,7 +646,9 @@ const upcomingDeadlines = useMemo(() => {
       location: "ETH Mensa Polyterrasse",
       attendees: ["Isabella", "Mateo"],
       image: "/images/events/dessert.jpg",
-      description: "A short afternoon meetup just for coffee, dessert, and a mid-day reset. We'll chat about how the week is going and enjoy something sweet before heading back to work.",
+      description:
+        "A short afternoon meetup just for coffee, dessert, and a mid-day reset. We'll chat about how the week is going and enjoy something sweet before heading back to work.",
+      tags: ["food", "short-break", "social"],
     },
     {
       title: "Campus Photo Walk",
@@ -615,9 +656,10 @@ const upcomingDeadlines = useMemo(() => {
       location: "ETH Zentrum Campus",
       attendees: ["Lucas", "Sophia"],
       image: "/images/events/photo-walk.webp",
-      description: "A relaxed walk around campus to take photos of cool spots and views. We'll explore, chat, and maybe grab a drink afterward—social, but still easygoing and flexible.",
+      description:
+        "A relaxed walk around campus to take photos of cool spots and views. We'll explore, chat, and maybe grab a drink afterward—social, but still easygoing and flexible.",
+      tags: ["outdoor", "walk", "creative"],
     },
-
   ];
 
   // ⭐ MEDIUM-HIGH SOCIAL ENERGY
@@ -628,7 +670,9 @@ const upcomingDeadlines = useMemo(() => {
       location: "ETH HG E33",
       attendees: ["Ava", "Isabella", "Mateo", "Chloe"],
       image: "/images/events/study.jpg",
-      description: "An energetic study sprint where we'll tackle our assignments together and push each other to stay focused. We'll work in focused blocks with short breaks to chat and recharge. Perfect for when you're feeling motivated and want to get a lot done.",
+      description:
+        "An energetic study sprint where we'll tackle our assignments together and push each other to stay focused. We'll work in focused blocks with short breaks to chat and recharge. Perfect for when you're feeling motivated and want to get a lot done.",
+      tags: ["study", "group-work", "high-energy"],
     },
     {
       title: "Evening Jog Crew",
@@ -636,7 +680,9 @@ const upcomingDeadlines = useMemo(() => {
       location: "ETH Hönggerberg",
       attendees: ["Liam", "Ethan", "Daniel"],
       image: "/images/events/run.jpg",
-      description: "A fun evening jog around Hönggerberg campus to get some exercise and fresh air. We'll run at a comfortable pace and chat along the way. It's a great way to stay active and socialize at the same time.",
+      description:
+        "A fun evening jog around Hönggerberg campus to get some exercise and fresh air. We'll run at a comfortable pace and chat along the way. It's a great way to stay active and socialize at the same time.",
+      tags: ["sports", "fitness", "outdoor", "running"],
     },
     {
       title: "Casual Dinner Out",
@@ -644,7 +690,9 @@ const upcomingDeadlines = useMemo(() => {
       location: "Nooch Zurich",
       attendees: ["Oscar", "Daniel"],
       image: "/images/events/dinner.jpg",
-      description: "A relaxed dinner at Nooch Zurich to enjoy some delicious Asian cuisine and good conversation. We'll try different dishes, share stories, and just have a great time together. Perfect for a Saturday night out.",
+      description:
+        "A relaxed dinner at Nooch Zurich to enjoy some delicious Asian cuisine and good conversation. We'll try different dishes, share stories, and just have a great time together. Perfect for a Saturday night out.",
+      tags: ["food", "social", "evening"],
     },
     {
       title: "Big Study Group",
@@ -652,7 +700,9 @@ const upcomingDeadlines = useMemo(() => {
       location: "HG D1.2",
       attendees: ["Ava", "Isabella", "Mateo", "Chloe"],
       image: "/images/events/study.png",
-      description: "A productive study session with the whole group where we'll work on assignments and help each other with difficult problems. We'll take regular breaks to chat and keep the atmosphere positive and motivating. Great for tackling challenging material together.",
+      description:
+        "A productive study session with the whole group where we'll work on assignments and help each other with difficult problems. We'll take regular breaks to chat and keep the atmosphere positive and motivating. Great for tackling challenging material together.",
+      tags: ["study", "collaborative"],
     },
     {
       title: "Lunch Crew",
@@ -660,7 +710,9 @@ const upcomingDeadlines = useMemo(() => {
       location: "Mensa Polyterrasse",
       attendees: ["Chloe", "Mateo"],
       image: "/images/events/mensa2.jpg",
-      description: "A lively lunch meetup at the Mensa where we'll enjoy good food and catch up on everything. We'll share what we're working on, discuss upcoming projects, and just enjoy each other's company. Always a highlight of the week!",
+      description:
+        "A lively lunch meetup at the Mensa where we'll enjoy good food and catch up on everything. We'll share what we're working on, discuss upcoming projects, and just enjoy each other's company. Always a highlight of the week!",
+      tags: ["food", "social", "recurring"],
     },
     {
       title: "Brainstorm & Whiteboard Jam",
@@ -668,7 +720,9 @@ const upcomingDeadlines = useMemo(() => {
       location: "ETH HG E Floor Seminar Room",
       attendees: ["Oscar", "Daniel", "Chloe", "Mateo"],
       image: "/images/events/whiteboard.jpg",
-      description: "An energetic session where we grab a whiteboard and brainstorm ideas—projects, exams, or random side ideas. Expect lively discussion, quick sketches, and lots of shared thinking.",
+      description:
+        "An energetic session where we grab a whiteboard and brainstorm ideas—projects, exams, or random side ideas. Expect lively discussion, quick sketches, and lots of shared thinking.",
+      tags: ["brainstorming", "creative", "group-work"],
     },
     {
       title: "City Exploration Walk",
@@ -676,7 +730,9 @@ const upcomingDeadlines = useMemo(() => {
       location: "Zürich Old Town (Neumarkt)",
       attendees: ["Ava", "Lucas", "Isabella"],
       image: "/images/events/city-walk.jpg",
-      description: "A longer walk through Zürich’s old town, with time to explore hidden alleys, grab snacks, and talk. It's social and active, but still relaxed enough to go with the flow.",
+      description:
+        "A longer walk through Zürich’s old town, with time to explore hidden alleys, grab snacks, and talk. It's social and active, but still relaxed enough to go with the flow.",
+      tags: ["exploration", "walk", "social"],
     },
     {
       title: "Chill Games at CAB",
@@ -684,9 +740,10 @@ const upcomingDeadlines = useMemo(() => {
       location: "CAB Common Room",
       attendees: ["Ethan", "Liam", "Carlo", "Sophia"],
       image: "/images/events/cardgames.webp",
-      description: "An evening of light card and party games in a common room. Expect laughs, friendly competition, and breaks to chat—lively, but not overwhelming.",
+      description:
+        "An evening of light card and party games in a common room. Expect laughs, friendly competition, and breaks to chat—lively, but not overwhelming.",
+      tags: ["games", "indoor", "social"],
     },
-
   ];
 
   // ⭐ HIGH SOCIAL ENERGY
@@ -697,7 +754,9 @@ const upcomingDeadlines = useMemo(() => {
       location: "BQM Bar",
       attendees: ["Lucas", "Ethan", "Sophia", "Daniel"],
       image: "/images/events/drinks.jpg",
-      description: "A fun Friday night out at BQM Bar to celebrate the end of the week! We'll grab drinks, play some games, and enjoy the lively atmosphere. It's the perfect way to unwind and have a great time with friends. Let's make it a memorable night!",
+      description:
+        "A fun Friday night out at BQM Bar to celebrate the end of the week! We'll grab drinks, play some games, and enjoy the lively atmosphere. It's the perfect way to unwind and have a great time with friends. Let's make it a memorable night!",
+      tags: ["bar", "party", "crowded"],
     },
     {
       title: "ASVZ Group Workout",
@@ -705,7 +764,9 @@ const upcomingDeadlines = useMemo(() => {
       location: "ASVZ Polyterrasse",
       attendees: ["Carlo", "Oscar", "Ethan"],
       image: "/images/events/workout.jpg",
-      description: "An energetic group workout session at ASVZ Polyterrasse! We'll push each other through a fun circuit training or weight session. It's all about staying active, having fun, and motivating each other. Perfect for when you're feeling pumped and ready to move!",
+      description:
+        "An energetic group workout session at ASVZ Polyterrasse! We'll push each other through a fun circuit training or weight session. It's all about staying active, having fun, and motivating each other. Perfect for when you're feeling pumped and ready to move!",
+      tags: ["sports", "fitness", "high-energy"],
     },
     {
       title: "Volleyball Free Play",
@@ -713,7 +774,9 @@ const upcomingDeadlines = useMemo(() => {
       location: "ASVZ Höngg",
       attendees: ["Liam", "Ethan", "Lucas"],
       image: "/images/events/volleyball.png",
-      description: "A competitive and fun volleyball session at ASVZ Höngg! We'll play some friendly matches, work on our skills, and enjoy the active energy. Whether you're experienced or just want to try it out, everyone's welcome. Let's get moving and have a blast!",
+      description:
+        "A competitive and fun volleyball session at ASVZ Höngg! We'll play some friendly matches, work on our skills, and enjoy the active energy. Whether you're experienced or just want to try it out, everyone's welcome. Let's get moving and have a blast!",
+      tags: ["sports", "team", "high-energy"],
     },
     {
       title: "Big Study Group",
@@ -721,7 +784,9 @@ const upcomingDeadlines = useMemo(() => {
       location: "ETH HG D1.2",
       attendees: ["Ava", "Isabella", "Mateo", "Chloe"],
       image: "/images/events/study.png",
-      description: "An energetic and collaborative study session with the whole crew! We'll tackle challenging problems together, share knowledge, and keep the momentum high. With regular breaks for laughs and snacks, it's both productive and fun. Perfect for when you're feeling motivated and ready to conquer your work!",
+      description:
+        "An energetic and collaborative study session with the whole crew! We'll tackle challenging problems together, share knowledge, and keep the momentum high. With regular breaks for laughs and snacks, it's both productive and fun. Perfect for when you're feeling motivated and ready to conquer your work!",
+      tags: ["study", "high-energy", "collaborative"],
     },
     {
       title: "Student Party Night",
@@ -729,7 +794,9 @@ const upcomingDeadlines = useMemo(() => {
       location: "StuZ Night Event",
       attendees: ["Lucas", "Isabella", "Ethan", "Sophia", "Daniel"],
       image: "/images/events/party.jpg",
-      description: "A loud, high-energy student party with music, dancing, and a big crowd. We'll move between groups, meet new people, and enjoy the full weekend party vibe.",
+      description:
+        "A loud, high-energy student party with music, dancing, and a big crowd. We'll move between groups, meet new people, and enjoy the full weekend party vibe.",
+      tags: ["party", "music", "crowded"],
     },
     {
       title: "Intense ASVZ HIIT Session",
@@ -737,7 +804,9 @@ const upcomingDeadlines = useMemo(() => {
       location: "ASVZ Polyterrasse Gym",
       attendees: ["Carlo", "Liam", "Oscar"],
       image: "/images/events/hiit.avif",
-      description: "A fast-paced HIIT workout where we really push ourselves. Lots of energy, encouragement, and endorphins—perfect if you're in the mood to sweat and feel pumped afterward.",
+      description:
+        "A fast-paced HIIT workout where we really push ourselves. Lots of energy, encouragement, and endorphins—perfect if you're in the mood to sweat and feel pumped afterward.",
+      tags: ["fitness", "hiit", "group"],
     },
     {
       title: "Bowling & Arcade Night",
@@ -745,10 +814,12 @@ const upcomingDeadlines = useMemo(() => {
       location: "Bowling Center Zürich",
       attendees: ["Ava", "Mateo", "Chloe", "Daniel", "Lucas"],
       image: "/images/events/bowling.jpg",
-      description: "A lively night of bowling, arcade games, and friendly trash talk. We'll cheer, compete, and laugh a lot—ideal for when you want something fun and energetic with the group.",
+      description:
+        "A lively night of bowling, arcade games, and friendly trash talk. We'll cheer, compete, and laugh a lot—ideal for when you want something fun and energetic with the group.",
+      tags: ["games", "group", "high-energy"],
     },
-
   ];
+
 
   // SELECT EVENTS BASED ON BUCKET
   let eventsForUser =
@@ -971,119 +1042,195 @@ const upcomingDeadlines = useMemo(() => {
         style={{ fontSize: "20px" }}
       ></i>
       <h4 className="mb-0 text-white">Upcoming</h4>
+      {/* Hide/Show Upcoming toggle */}
+      <button
+        type="button"
+        className="btn btn-outline-secondary d-flex align-items-center justify-content-center"
+        style={{
+          marginLeft: "0.5rem", 
+          borderColor: upcomingMuted
+            ? currentBorderColor
+            : "rgba(148, 163, 184, 0.3)",
+          color: upcomingMuted ? "#f97316" : "#f8fafc",
+          fontSize: "0.85rem",
+          padding: "0.3rem 0.7rem",
+          backgroundColor: upcomingMuted
+            ? "rgba(15,23,42,0.9)"
+            : "transparent",
+        }}
+        onClick={() => setUpcomingMuted((prev) => !prev)}
+        title={
+          upcomingMuted
+            ? "Show upcoming tasks again"
+            : "Hide upcoming tasks – slow down"
+        }
+      >
+        <i
+          className={
+            upcomingMuted
+              ? "bi bi-pause-circle-fill me-1"
+              : "bi bi-pause-circle me-1"
+          }
+        />
+        <span className="d-none d-sm-inline">
+          {upcomingMuted ? "Show Upcoming" : "Hide Upcoming"}
+        </span>
+      </button>
     </div>
 
-    {/* Right: round calendar button linking to Calendar page */}
-    <button
-      type="button"
-      className="btn btn-outline-secondary d-flex align-items-center justify-content-center icon-pop"
-      style={{
-        width: "36px",
-        height: "36px",
-        borderRadius: "50%",
-        padding: 0,
-        borderColor: "rgba(148,163,184,0.5)",
-        color: "#e5e7eb",
-        backgroundColor: "transparent",
-        position: "relative",
-        overflow: "hidden",
-        transition: "all 0.3s ease",
-      }}
-      onClick={() => navigate("/home/calendar")}
-      title="Open calendar"
-      onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = "rgba(148,163,184,0.9)";
-        e.currentTarget.style.boxShadow = "0 0 12px rgba(148,163,184,0.4), inset 0 0 12px rgba(148,163,184,0.1)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = "rgba(148,163,184,0.5)";
-        e.currentTarget.style.boxShadow = "none";
-      }}
-    >
-      {/* Shine overlay */}
-      <div
+    {/* Right: calendar button + mute toggle */}
+    <div className="d-flex align-items-center gap-2">
+      {/* Calendar button */}
+      <button
+        type="button"
+        className="btn btn-outline-secondary d-flex align-items-center justify-content-center icon-pop"
         style={{
-          position: "absolute",
-          top: 0,
-          left: "-100%",
-          width: "100%",
-          height: "100%",
-          background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",
-          pointerEvents: "none",
+          width: "36px",
+          height: "36px",
+          borderRadius: "50%",
+          padding: 0,
+          borderColor: "rgba(148,163,184,0.5)",
+          color: "#e5e7eb",
+          backgroundColor: "transparent",
+          position: "relative",
+          overflow: "hidden",
+          transition: "all 0.3s ease",
         }}
-        className="calendar-shine"
-      />
-      <i className="bi bi-calendar4-week" style={{ fontSize: "18px", position: "relative", zIndex: 1 }} />
-    </button>
+        onClick={() => navigate("/home/calendar")}
+        title="Open calendar"
+        onMouseEnter={(e) => {
+          e.currentTarget.style.borderColor = "rgba(148,163,184,0.9)";
+          e.currentTarget.style.boxShadow =
+            "0 0 12px rgba(148,163,184,0.4), inset 0 0 12px rgba(148,163,184,0.1)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = "rgba(148,163,184,0.5)";
+          e.currentTarget.style.boxShadow = "none";
+        }}
+      >
+        {/* Shine overlay */}
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: "-100%",
+            width: "100%",
+            height: "100%",
+            background:
+              "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",
+            pointerEvents: "none",
+          }}
+          className="calendar-shine"
+        />
+        <i
+          className="bi bi-calendar4-week"
+          style={{ fontSize: "18px", position: "relative", zIndex: 1 }}
+        />
+      </button>
+
+      
+    </div>
   </div>
 
-  {/* DEADLINES */}
-    <div className="mb-3">
-      <div className="d-flex align-items-center mb-2">
+  {/* CONTENT: either quote or regular upcoming list */}
+  {upcomingMuted ? (
+    <div
+      className="mt-2 p-3 rounded"
+      style={{
+        backgroundColor: "#020617",
+        border: `1px dashed ${currentBorderColor}`,
+      }}
+    >
+      <div className="d-flex align-items-start">
         <i
-          className="bi bi-flag-fill text-warning me-2"
-          style={{ fontSize: "18px" }}
-        />
-        <span className="text-white fw-semibold">Deadlines</span>
-      </div>
-
-      {upcomingDeadlines.length === 0 && (
-        <div className="text-secondary mb-2" style={{ opacity: 0.7 }}>
-          No deadlines set.
-        </div>
-      )}
-
-      {upcomingDeadlines.map((item, idx) => (
-        <ScheduleCard
-          key={`d-${idx}`}
-          title={item.title}
-          timeLabel={item.timeLabel}
-          variant="deadline"
-          onClick={() => navigate("/home/calendar")}
-        />
-      ))}
-    </div>
-
-   {/* KEEP THESE (Priority) */}
-        <div className="mb-3">
-          <div className="d-flex align-items-center mb-2">
-            <i
-              className="bi bi-exclamation-circle-fill text-danger me-2"
-              style={{ fontSize: "18px" }}
-            />
-            <span className="text-white fw-semibold">Priority</span>
-          </div>
-          {priorityUpcoming.map((item, idx) => (
-            <ScheduleCard
-              key={`p-${idx}`}
-              title={item.title}
-              timeLabel={item.timeLabel}
-              variant="priority"
-              onClick={() => navigate("/home/calendar")}
-            />
-          ))}
-        </div>
-
-        {/* FLEXIBLE */}
+          className="bi bi-moon-stars me-3"
+          style={{ fontSize: "1.4rem", color: currentBorderColor }}
+        ></i>
         <div>
-          <div className="d-flex align-items-center mb-2">
-            <i
-              className="bi bi-check-circle-fill text-success me-2"
-              style={{ fontSize: "18px" }}
-            />
-            <span className="text-white fw-semibold">Flexible</span>
+          <div className="text-white fw-semibold mb-1">
+            Gentle pace activated
           </div>
-          {flexibleUpcoming.map((item, idx) => (
-            <ScheduleCard
-              key={`f-${idx}`}
-              title={item.title}
-              timeLabel={item.timeLabel}
-              variant="flexible"
-              onClick={() => navigate("/home/calendar")}
-            />
-          ))}
+          <div className="text-secondary" style={{ fontSize: "0.9rem" }}>
+            Your upcoming tasks are tucked away for now so things don’t feel
+            overwhelming. Take your time — you can show them again any time
+            using the button above.
+          </div>
         </div>
       </div>
+    </div>
+  ) : (
+    <>
+      {/* DEADLINES */}
+      
+      <div className="mb-3">
+        <div className="d-flex align-items-center mb-2">
+          <i
+            className="bi bi-flag-fill text-warning me-2"
+            style={{ fontSize: "18px" }}
+          />
+          <span className="text-white fw-semibold">Deadlines</span>
+        </div>
+
+        {upcomingDeadlines.length === 0 && (
+          <div className="text-secondary mb-2" style={{ opacity: 0.7 }}>
+            No deadlines set.
+          </div>
+        )}
+
+        {upcomingDeadlines.map((item, idx) => (
+          <ScheduleCard
+            key={`d-${idx}`}
+            title={item.title}
+            timeLabel={item.timeLabel}
+            variant="deadline"
+            onClick={() => navigate("/home/calendar")}
+          />
+        ))}
+      </div>
+
+      {/* PRIORITY */}
+      <div className="mb-3">
+        <div className="d-flex align-items-center mb-2">
+          <i
+            className="bi bi-exclamation-circle-fill text-danger me-2"
+            style={{ fontSize: "18px" }}
+          />
+          <span className="text-white fw-semibold">Priority</span>
+        </div>
+        {priorityUpcoming.map((item, idx) => (
+          <ScheduleCard
+            key={`p-${idx}`}
+            title={item.title}
+            timeLabel={item.timeLabel}
+            variant="priority"
+            onClick={() => navigate("/home/calendar")}
+          />
+        ))}
+      </div>
+
+      {/* FLEXIBLE */}
+      <div>
+        <div className="d-flex align-items-center mb-2">
+          <i
+            className="bi bi-check-circle-fill text-success me-2"
+            style={{ fontSize: "18px" }}
+          />
+          <span className="text-white fw-semibold">Flexible</span>
+        </div>
+        {flexibleUpcoming.map((item, idx) => (
+          <ScheduleCard
+            key={`f-${idx}`}
+            title={item.title}
+            timeLabel={item.timeLabel}
+            variant="flexible"
+            onClick={() => navigate("/home/calendar")}
+          />
+        ))}
+      </div>
+    </>
+  )}
+</div>
+
 
       <hr className="border-secondary my-3" />
 
@@ -1097,7 +1244,40 @@ const upcomingDeadlines = useMemo(() => {
               filter: "drop-shadow(0 0 6px rgba(0,0,0,0.6))",
             }}
           ></i>
-          <h4 className="mb-0 text-white section-title">Recommended Events</h4>
+          <h4 className="mb-0 text-white section-title">Events  </h4>
+          <div className="d-flex align-items-center gap-2">
+            <button
+                type="button"
+                className="btn btn-outline-secondary d-flex align-items-center justify-content-center"
+                style={{
+                  marginLeft: "0.5rem", 
+                  borderColor: eventsMuted
+                    ? currentBorderColor
+                    : "rgba(148, 163, 184, 0.3)",
+                  color: eventsMuted ? "#f97316" : "#f8fafc",
+                  fontSize: "0.9rem",
+                  padding: "0.35rem 0.7rem",
+                  backgroundColor: eventsMuted ? "rgba(15, 23, 42, 0.9)" : "transparent",
+                }}
+                onClick={() => setEventsMuted((prev) => !prev)}
+                title={
+                  eventsMuted
+                    ? "Show recommendations again"
+                    : "Hide all recommendations – solo time"
+                }
+              >
+                <i
+                  className={
+                    eventsMuted
+                      ? "bi bi-bell-slash-fill me-1"
+                      : "bi bi-bell-slash me-1"
+                  }
+                />
+                <span className="d-none d-sm-inline">
+                  {eventsMuted ? "Show Events" : "Hide Events"}
+                </span>
+              </button>
+              </div>
         </div>
         
         {/* Sort Button */}
@@ -1214,41 +1394,71 @@ const upcomingDeadlines = useMemo(() => {
       </div>
 
       {/* Event list */}
-      <div className="mt-3">
-        {visibleEvents.map((ev, i) => (
-          <EventCard
-            key={i}
-            title={ev.title}
-            timeLabel={ev.timeLabel}
-            location={ev.location}
-            attendees={ev.attendees}
-            image={ev.image}
-            borderColor={currentBorderColor}
-            isJoined={isEventJoined(ev)}
-            // IMPORTANT: open modal instead of directly joining
-            onJoin={() => handleOpenEventModal(ev)}
-          />
-        ))}
-      </div>
-
-      {sortedEvents.length > 3 && (
-        <div className="text-center mt-3">
-          {!showAll ? (
-            <button
-              className="btn btn-outline-secondary"
-              onClick={() => setShowAll(true)}
-            >
-              Show more ▼
-            </button>
-          ) : (
-            <button
-              className="btn btn-outline-secondary"
-              onClick={() => setShowAll(false)}
-            >
-              Show less ▲
-            </button>
-          )}
+      {/* Event list / Solo-time message */}
+      {eventsMuted ? (
+        <div
+          className="mt-3 p-3 rounded"
+          style={{
+            backgroundColor: "#020617",
+            border: `1px dashed ${currentBorderColor}`,
+          }}
+        >
+          <div className="d-flex align-items-center">
+            <i
+              className="bi bi-moon-stars me-2"
+              style={{ fontSize: "1.3rem", color: currentBorderColor }}
+            ></i>
+            <div>
+              <div className="text-white fw-semibold">
+                Solo time activated
+              </div>
+              <div className="text-secondary" style={{ fontSize: "0.9rem" }}>
+                We’ve hidden all event suggestions so you can focus on yourself.
+                You can turn recommendations back on at any time using the
+                above button.
+              </div>
+            </div>
+          </div>
         </div>
+      ) : (
+        <>
+          <div className="mt-3">
+            {visibleEvents.map((ev, i) => (
+              <EventCard
+                key={i}
+                title={ev.title}
+                timeLabel={ev.timeLabel}
+                location={ev.location}
+                attendees={ev.attendees}
+                image={ev.image}
+                borderColor={currentBorderColor}
+                isJoined={isEventJoined(ev)}
+                tags={ev.tags}
+                onJoin={() => handleOpenEventModal(ev)}
+              />
+            ))}
+          </div>
+
+          {sortedEvents.length > 3 && (
+            <div className="text-center mt-3">
+              {!showAll ? (
+                <button
+                  className="btn btn-outline-secondary"
+                  onClick={() => setShowAll(true)}
+                >
+                  Show more ▼
+                </button>
+              ) : (
+                <button
+                  className="btn btn-outline-secondary"
+                  onClick={() => setShowAll(false)}
+                >
+                  Show less ▲
+                </button>
+              )}
+            </div>
+          )}
+        </>
       )}
 
       {/* Event Details Modal */}

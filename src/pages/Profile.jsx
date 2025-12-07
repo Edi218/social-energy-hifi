@@ -162,6 +162,8 @@ export default function Profile() {
     return () => window.removeEventListener("eventsUpdated", loadEvents);
   }, []);
 
+  const [onlyBroadcastToFriends, setOnlyBroadcastToFriends] = useState(false);
+
   const getMoodEmoji = (level) => {
     const moods = {
       1: "😴",
@@ -739,6 +741,27 @@ export default function Profile() {
                     <option value="mediumhigh">Medium-High</option>
                     <option value="high">Very High</option>
                   </select>
+                </div>
+
+                <div className="mb-3">
+                  <div className="form-check form-switch">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      id="broadcastToFriendsSwitch"
+                      checked={onlyBroadcastToFriends}
+                      onChange={(e) => setOnlyBroadcastToFriends(e.target.checked)}
+                    />
+                    <label
+                      className="form-check-label text-light"
+                      htmlFor="broadcastToFriendsSwitch"
+                    >
+                      Only broadcast to friends
+                    </label>
+                  </div>
+                  <small className="text-muted">
+                    When enabled, this activity will only be suggested or shown to people on your friends list.
+                  </small>
                 </div>
 
                 <div className="d-flex justify-content-end gap-2 mt-3">

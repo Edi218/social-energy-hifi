@@ -9,6 +9,7 @@ export default function EventCard({
   onJoin,
   isJoined = false,
   borderColor = 'rgba(34,197,94,0.35)',
+  tags = [], // NEW
 }) {
   const preview = attendees.slice(0, 3)
   const extraCount = attendees.length - preview.length
@@ -30,10 +31,9 @@ export default function EventCard({
       }}
     >
       <div className="card-body">
-        {/* TOP ROW */}
-        <div className="d-flex align-items-center justify-content-between mb-3">
+        {/* TOP ROW: image + title + join button */}
+        <div className="d-flex align-items-start justify-content-between mb-3">
           <div className="d-flex align-items-center gap-3">
-
             {/* EVENT IMAGE */}
             <div
               style={{
@@ -62,25 +62,112 @@ export default function EventCard({
               )}
             </div>
 
-            <h5 className="text-white fw-semibold mb-0">{title}</h5>
+            <div>
+              <h5 className="text-white fw-semibold mb-1">{title}</h5>
+              {/* TIME (small under title on mobile-ish card) */}
+              <div className="d-flex align-items-center text-light opacity-75">
+                <i className="bi bi-clock me-2" />
+                <span style={{ fontSize: '0.9rem' }}>{timeLabel}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* JOIN / JOINED BUTTON – Top right now */}
+          <div className="ms-3">
+            {isJoined ? (
+              <button
+                className="btn"
+                disabled
+                style={{
+                  backgroundColor: '#6c757d',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '0.4rem 1.1rem',
+                  borderRadius: '999px',
+                  fontWeight: 600,
+                  fontSize: '0.8rem',
+                  cursor: 'not-allowed',
+                  opacity: 0.7,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                Joined
+              </button>
+            ) : (
+              <button
+                className="btn"
+                style={{
+                  backgroundColor: solidColor,
+                  color: '#020617',
+                  border: 'none',
+                  padding: '0.4rem 1.1rem',
+                  borderRadius: '999px',
+                  fontWeight: 600,
+                  fontSize: '0.8rem',
+                  transition: 'all 0.2s ease',
+                  whiteSpace: 'nowrap',
+                }}
+                onClick={onJoin}
+                onMouseEnter={(e) => {
+                  e.target.style.filter = 'brightness(1.05)'
+                  e.target.style.transform = 'scale(1.05)'
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.filter = 'none'
+                  e.target.style.transform = 'scale(1)'
+                }}
+              >
+                Join
+              </button>
+            )}
           </div>
         </div>
 
-        {/* TIME */}
-        <div className="d-flex align-items-center mb-2 text-light opacity-80">
-          <i className="bi bi-clock me-2" />
-          <span>{timeLabel}</span>
-        </div>
-
         {/* LOCATION */}
-        <div className="d-flex align-items-center mb-3 text-light opacity-80">
+        <div className="d-flex align-items-center mb-2 text-light opacity-80">
           <i className="bi bi-geo-alt me-2" />
           <span>{location}</span>
         </div>
 
+        {/* TAGS ROW */}
+        {tags.length > 0 && (
+          <div className="d-flex flex-wrap gap-2 mb-3">
+            {tags.map((tag) => (
+              <span
+                key={tag}
+                className="badge"
+                style={{
+                  borderRadius: '999px',
+                  border: `1px solid ${borderColor}`,
+                  background:
+                    'linear-gradient(135deg, rgba(15,23,42,0.95), rgba(15,23,42,0.6))',
+                  color: '#e5e7eb',
+                  fontSize: '0.75rem',
+                  padding: '0.25rem 0.6rem',
+                  textTransform: 'capitalize',
+                  letterSpacing: '0.03em',
+                }}
+              >
+                <span
+                  style={{
+                    display: 'inline-block',
+                    width: 6,
+                    height: 6,
+                    borderRadius: '50%',
+                    backgroundColor: solidColor,
+                    marginRight: 6,
+                    boxShadow: `0 0 4px ${solidColor}`,
+                  }}
+                />
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+
         {/* ATTENDEES */}
         {attendees.length > 0 && (
-          <div className="d-flex align-items-center mb-3 text-light opacity-90">
+          <div className="d-flex align-items-center mb-1 text-light opacity-90">
             <i className="bi bi-people-fill me-2" />
 
             <div className="d-flex align-items-center">
@@ -91,7 +178,7 @@ export default function EventCard({
                   style={{
                     width: 30,
                     height: 30,
-                    backgroundColor: solidColor,   
+                    backgroundColor: solidColor,
                     color: '#020617',
                     fontWeight: 600,
                     marginLeft: idx === 0 ? 0 : -12,
@@ -109,54 +196,6 @@ export default function EventCard({
             </div>
           </div>
         )}
-
-        {/* JOIN/JOINED BUTTON - Bottom Right */}
-        <div className="d-flex justify-content-end">
-          {isJoined ? (
-            <button
-              className="btn"
-              disabled
-              style={{
-                backgroundColor: '#6c757d',
-                color: '#ffffff',
-                border: 'none',
-                padding: '0.5rem 1.25rem',
-                borderRadius: '8px',
-                fontWeight: 600,
-                fontSize: '0.9rem',
-                cursor: 'not-allowed',
-                opacity: 0.7,
-              }}
-            >
-              Joined
-            </button>
-          ) : (
-            <button
-              className="btn"
-              style={{
-                backgroundColor: '#28a745',
-                color: '#ffffff',
-                border: 'none',
-                padding: '0.5rem 1.25rem',
-                borderRadius: '8px',
-                fontWeight: 600,
-                fontSize: '0.9rem',
-                transition: 'all 0.2s ease',
-              }}
-              onClick={onJoin}
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = '#218838';
-                e.target.style.transform = 'scale(1.05)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = '#28a745';
-                e.target.style.transform = 'scale(1)';
-              }}
-            >
-              Join
-            </button>
-          )}
-        </div>
       </div>
     </div>
   )
