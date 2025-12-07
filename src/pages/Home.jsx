@@ -682,7 +682,7 @@ const upcomingDeadlines = useMemo(() => {
       title: "Coffee Chat",
       timeLabel: "Tuesday at 10:00 AM",
       location: "Einstein Cafe, ETH HG",
-      attendees: ["Elynn Lee", "Chloe", "Lucas"],
+      attendees: ["Elynn", "Chloe", "Lucas"],
       image: "/images/events/coffee.jpg",
       description:
         "A casual coffee meetup at Einstein Cafe to catch up and chat about classes, life, and everything in between. We'll grab our favorite drinks and find a cozy spot to relax. Perfect for a mid-morning social break.",
